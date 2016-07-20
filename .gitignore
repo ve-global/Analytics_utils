@@ -106,3 +106,5 @@ ENV/
 # Temporary data
 .ipynb_checkpoints/
 
+
+.idea/

@@ -8,6 +8,7 @@ from logs import logger
 DEFAULT_FMT = '[{name}] {elapsed:0.8f} min'
 COLLECT_LIMIT = 5000000
 
+
 def clock(fmt=DEFAULT_FMT):
     """
     Computes and prints the duration of the function
