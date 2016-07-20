@@ -6,7 +6,11 @@ logger = logging.getLogger('reporting')
 coloredlogs.install(level='DEBUG', fmt="%(asctime)s %(levelname)s %(message)s")
 
 if not logger.handlers:
-    file_handler = logging.FileHandler(os.path.join(os.path.dirname(__file__), './tmp/upload.log'))
+    logs_folder = os.path.join(os.path.dirname(__file__), './tmp')
+    if not os.path.exists(logs_folder):
+        os.makedirs(logs_folder)
+
+    file_handler = logging.FileHandler('{}/upload.log'.format(logs_folder))
     file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(file_format)
     logger.addHandler(file_handler)
