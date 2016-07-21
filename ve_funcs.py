@@ -2,8 +2,9 @@ import pyspark.sql.functions as F
 
 
 revenue = (F.sum('post_click_revenue') + F.sum('post_view_revenue'))
-cost = (F.sum('media_cost_dollars_cpm'))
-cost_data = (F.sum('data_costs_cpm'))
+cpm = (F.sum('media_cost_dollars_cpm'))
+cpm_with_fees = F.sum('cpm_including_fees')
+cpm_data = (F.sum('data_costs_cpm'))
 begin_auction, end_auction = F.unix_timestamp(F.min('datetime')), F.unix_timestamp(F.max('datetime'))
 duration = (end_auction - begin_auction)
 
@@ -30,5 +31,6 @@ def filter_date(from_date, to_date):
     elif to_date:
         f = get_date() < to_date
     else:
-        f = True
+        raise ValueError('from_date or to_date must be specified')
+
     return f

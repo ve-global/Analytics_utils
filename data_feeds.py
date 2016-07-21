@@ -58,7 +58,8 @@ class DataFeeds(object):
         else:
             raise ValueError('Data type "%s" not implemented' % data_type)
 
-        data = data.filter(VeFuncs.filter_date(from_date, to_date))
+        if from_date or to_date:
+            data = data.filter(VeFuncs.filter_date(from_date, to_date))
 
         return data
 

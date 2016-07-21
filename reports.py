@@ -16,7 +16,7 @@ def agg_standard_feed(standard_feed):
         F.sum('is_imp').alias('nb_imps'),
         F.sum('is_click').alias('nb_clicks'),
         F.sum('is_viewed').alias('nb_viewed'),
-        VeFuncs.revenue.alias('revenue'), VeFuncs.cost.alias('cost')
+        VeFuncs.revenue.alias('revenue'), VeFuncs.cpm.alias('cpm')
     ))
     return standard_df
 
@@ -47,7 +47,7 @@ def compare_standard_feed(report_path, sql_context, from_date=None, to_date=None
     # 4.Aggregating the results
     df_agg = df.groupby([pd.TimeGrouper('D'), 'advertiser_id']).agg({
         'imps': {'nb_imps': 'sum'},
-        'cost': {'cost': 'sum'},
+        'cpm': {'cpm': 'sum'},
         'revenue': {'revenue': 'sum'},
         'imps_viewed': {'nb_viewed': 'sum'},
         'clicks': {'nb_clicks': 'sum'},
@@ -60,7 +60,7 @@ def compare_standard_feed(report_path, sql_context, from_date=None, to_date=None
     full_df = pd.merge(df_agg, standard_df, on=['date', 'advertiser_id'],
                        suffixes=('_api', ''), how='outer').fillna(0)
 
-    to_compare = ['nb_convs', 'nb_imps', 'nb_clicks', 'nb_viewed', 'revenue', 'cost']
+    to_compare = ['nb_convs', 'nb_imps', 'nb_clicks', 'nb_viewed', 'revenue', 'cpm']
     agg_df_bins = []
 
     for feature in to_compare:
