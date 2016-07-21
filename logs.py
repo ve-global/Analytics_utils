@@ -3,7 +3,7 @@ import coloredlogs
 import os
 
 logger = logging.getLogger('reporting')
-coloredlogs.install(level='DEBUG', fmt="%(asctime)s %(levelname)s %(message)s")
+coloredlogs.install(level='ERROR', fmt="%(asctime)s %(levelname)s %(message)s")
 
 if not logger.handlers:
     logs_folder = os.path.join(os.path.dirname(__file__), './tmp')

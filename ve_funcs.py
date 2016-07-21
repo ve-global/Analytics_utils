@@ -1,5 +1,5 @@
-# import pyspark.sql.functions as F
-F = None
+import pyspark.sql.functions as F
+
 
 revenue = (F.sum('post_click_revenue') + F.sum('post_view_revenue'))
 cost = (F.sum('media_cost_dollars_cpm'))
