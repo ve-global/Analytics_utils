@@ -1,7 +1,7 @@
 from data_feeds import DataFeeds, Feeds
 import pandas as pd
-import pyspark.sql.functions as F
-
+# import pyspark.sql.functions as F
+F = None
 
 from ve_utils import clock, to_pd
 import ve_funcs as VeFuncs

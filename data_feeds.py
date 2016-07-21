@@ -1,4 +1,5 @@
-import pyspark.sql.functions as F
+# import pyspark.sql.functions as F
+F = None
 from enum import Enum
 
 from ve_utils import clock, to_pd
