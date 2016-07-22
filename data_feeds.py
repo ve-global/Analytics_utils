@@ -102,4 +102,4 @@ class DataFeeds(object):
 
         converted_users = DataFeeds.get_converted_user_ids(auctions)['othuser_id_64'].tolist()
         users_df = df.filter(df.othuser_id_64.isin(converted_users)).drop_duplicates()
-        return users_df, converted_users
+        return users_df
