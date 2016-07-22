@@ -1,6 +1,5 @@
 import pyspark.sql.functions as F
 
-
 revenue = (F.sum('post_click_revenue') + F.sum('post_view_revenue'))
 cpm = (F.sum('media_cost_dollars_cpm'))
 cpm_with_fees = F.sum('cpm_including_fees')
@@ -23,7 +22,7 @@ def get_date(by='D'):
     return f
 
 
-def filter_date(from_date, to_date):
+def filter_date(from_date=None, to_date=None):
     if from_date and to_date:
         f = get_date().between(from_date, to_date)
     elif from_date:

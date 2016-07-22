@@ -9,6 +9,18 @@ import ve_funcs as VeFuncs
 @clock()
 @to_pd()
 def agg_standard_feed(standard_feed):
+    """
+    Add useful columns to the df and aggregate the data by day/advertiser_id
+    with the following metrics:
+     - nb_convs
+     - nb_imps
+     - nb_clicks
+     - nb_viewed
+     - revenue
+     - cpm
+    :param standard_feed:
+    :return:
+    """
     standard_df = DataFeeds.add_columns(standard_feed)
 
     standard_df = (standard_df.groupby('date', 'advertiser_id').agg(
