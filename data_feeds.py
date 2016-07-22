@@ -32,6 +32,11 @@ class DataFeeds(object):
 
     @staticmethod
     def add_columns(df):
+        """
+        Add useful columns to the dataframe (date, is_conv, is_imp, is_click, is_viewed)
+        :param df:
+        :return:
+        """
         df = (df.withColumn('date', VeFuncs.get_date('D'))
               .withColumn('is_conv', F.when(df.event_type.isin(['pc_conv', 'pv_conv']), 1).otherwise(0))
               .withColumn('is_imp', F.when(df.event_type == 'imp', 1).otherwise(0))
