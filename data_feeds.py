@@ -101,5 +101,5 @@ class DataFeeds(object):
                     .agg(F.sum('is_conv').alias('nb_convs')))
 
         converted_users = DataFeeds.get_converted_user_ids(auctions)['othuser_id_64'].tolist()
-        users_df = df.filter(df.othuser_id_64.isin(converted_users)).drop_duplicates()
+        users_df = df.filter(df.othuser_id_64.isin(converted_users))
         return users_df
