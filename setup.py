@@ -29,8 +29,8 @@ setup(
     # # Dependent packages (distributions)
     install_requires=[
         "coloredlogs",
-        "py4j",
-        "pyspark",
+        # "py4j",
+        # "pyspark",
         "sqlalchemy",
         "sqlalchemy_utils"
     ],
