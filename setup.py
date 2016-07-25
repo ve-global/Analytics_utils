@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     # Application name:
-    name="appnexus_utils",
+    name="analytics_utils",
 
     # Version number (initial):
     version="0.1.0",
@@ -12,7 +12,7 @@ setup(
     author_email="julien.brayere@veinteractive.com",
     #
     # Packages
-    packages=["appnexus_utils"],
+    packages=["spark_analysis_utils"],
     #
     # # Include additional files into the package
     # include_package_data=True,
@@ -29,9 +29,8 @@ setup(
     # # Dependent packages (distributions)
     install_requires=[
         "coloredlogs",
-        # "py4j",
-        # "pyspark",
         "sqlalchemy",
-        "sqlalchemy_utils"
+        "sqlalchemy_utils",
+        "enum34"
     ],
 )

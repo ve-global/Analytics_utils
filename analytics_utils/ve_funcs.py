@@ -9,6 +9,11 @@ duration = (end_auction - begin_auction)
 
 
 def get_date(by='D'):
+    """
+    Return the date to be filtered / grouped on
+    :param by:
+    :return:
+    """
     if by == 'D':
         f = F.to_date(F.concat_ws('-', 'year', 'month', 'day'))
     elif by == 'M':
@@ -23,6 +28,13 @@ def get_date(by='D'):
 
 
 def filter_date(from_date=None, to_date=None):
+    """
+    Return a function to filter on date for a given DataFrame.
+    Date format can either be a datetime or a string of format '%Y-%m-%d'
+    :param from_date:
+    :param to_date:
+    :return:
+    """
     if from_date and to_date:
         f = get_date().between(from_date, to_date)
     elif from_date:

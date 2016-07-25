@@ -3,7 +3,7 @@ from enum import Enum
 import pyspark.sql.functions as F
 from ve_utils import clock, to_pd
 
-from appnexus_utils import ve_funcs as VeFuncs
+from analytics_utils import ve_funcs as VeFuncs
 
 
 class Feeds(Enum):
@@ -41,7 +41,6 @@ class DataFeeds(object):
         df = (df.withColumn('date', VeFuncs.get_date('D'))
               .withColumn('is_conv', F.when(df.event_type.isin(['pc_conv', 'pv_conv']), 1).otherwise(0))
               .withColumn('is_imp', F.when(df.event_type == 'imp', 1).otherwise(0))
-              .withColumn('is_click', F.when(df.event_type == 'click', 1).otherwise(0))
               .withColumn('is_viewed', F.when(df.view_result_type == 1, 1).otherwise(0))
               )
         return df
@@ -73,6 +72,12 @@ class DataFeeds(object):
     @clock()
     @to_pd()
     def count_lines(df, by='D'):
+        """
+        Count the number of lines by: Day, Week, Month, Year
+        :param df:
+        :param by: data to group on (D, M, Y, W)
+        :return: safe pandas dataframe
+        """
         if by == 'D':
             data = df.groupBy(VeFuncs.get_date('D').alias('day')).count()
         elif by == 'M':
@@ -89,11 +94,21 @@ class DataFeeds(object):
     @clock()
     @to_pd()
     def get_converted_user_ids(auctions):
+        """
+        Get all the converted users ids.
+        :param auctions: the auctions to filter on
+        :return: safe pandas dataframe
+        """
         return auctions.filter(auctions.nb_convs > 0).select('othuser_id_64').distinct()
 
     @staticmethod
     @clock()
     def get_converted_users(df):
+        """
+        Returns a Dataframe containing all the users that converted
+        :param df: dataframe to filter
+        :return:  dataframe of converted users
+        """
         if 'is_conv' not in df.columns:
             df = df.withColumn('is_conv',
                                 F.when(df.event_type.isin(['pc_conv', 'pv_conv']), 1).otherwise(0))

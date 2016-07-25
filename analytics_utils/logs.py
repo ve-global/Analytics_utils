@@ -2,7 +2,7 @@ import logging
 import coloredlogs
 import os
 
-logger = logging.getLogger('appnexus_utils')
+logger = logging.getLogger('spark_analysis_utils')
 coloredlogs.install(level='DEBUG', fmt="%(asctime)s %(levelname)s %(message)s")
 
 if not logger.handlers:
@@ -10,7 +10,7 @@ if not logger.handlers:
     if not os.path.exists(logs_folder):
         os.makedirs(logs_folder)
 
-    file_handler = logging.FileHandler('{}/appnexus_utils.log'.format(logs_folder))
+    file_handler = logging.FileHandler('{}/spark_analysis_utils.log'.format(logs_folder))
     file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(file_format)
     logger.addHandler(file_handler)
