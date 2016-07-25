@@ -4,7 +4,7 @@ import time
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
 
-from reporting.logs import logger
+from appnexus_utils.logs import logger
 
 DEFAULT_FMT = '[{name}] {elapsed:0.8f} min'
 COLLECT_LIMIT = 5000000

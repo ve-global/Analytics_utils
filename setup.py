@@ -2,17 +2,17 @@ from distutils.core import setup
 
 setup(
     # Application name:
-    name="Reporting",
+    name="appnexus_utils",
 
     # Version number (initial):
     version="0.1.0",
 
     # Application author details:
     author="Julien Brayere",
-    # author_email="name@addr.ess",
+    author_email="julien.brayere@veinteractive.com",
     #
-    # # Packages
-    # packages=["app"],
+    # Packages
+    packages=["appnexus_utils"],
     #
     # # Include additional files into the package
     # include_package_data=True,
@@ -27,7 +27,11 @@ setup(
     # # long_description=open("README.txt").read(),
     #
     # # Dependent packages (distributions)
-    # install_requires=[
-    #     "flask",
-    # ],
+    install_requires=[
+        "coloredlogs",
+        "py4j",
+        "pyspark",
+        "sqlalchemy",
+        "sqlalchemy_utils"
+    ],
 )

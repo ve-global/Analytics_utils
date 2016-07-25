@@ -3,7 +3,7 @@ from enum import Enum
 import pyspark.sql.functions as F
 from ve_utils import clock, to_pd
 
-from reporting import ve_funcs as VeFuncs
+from appnexus_utils import ve_funcs as VeFuncs
 
 
 class Feeds(Enum):

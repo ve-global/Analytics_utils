@@ -3,7 +3,7 @@ import pyspark.sql.functions as F
 from data_feeds import DataFeeds, Feeds
 from ve_utils import clock, to_pd
 
-from reporting import ve_funcs as VeFuncs
+from appnexus_utils import ve_funcs as VeFuncs
 
 
 @clock()
