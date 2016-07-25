@@ -1,4 +1,4 @@
-# Spark Analysis utils
+# Analytics utils
 
 
 ### How to install: 
@@ -10,9 +10,9 @@
      ```
     import logging  
     logging.getLogger("py4j").setLevel(logging.ERROR)  
-    logging.getLogger("analysis_utils").setLevel(logging.INFO)  
+    logging.getLogger("analytics_utils").setLevel(logging.INFO)  
      ```
      
 # Useful functions:
 
-Refer to the **Feeds Utils** notebook for a complete use case.
+Refer to the **Analytics utils** notebook for a complete use case.
