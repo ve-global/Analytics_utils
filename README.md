@@ -2,7 +2,7 @@
 
 
 ### How to install: 
- - Run `https://github.com/ve-interactive/Analytics_utils.git`  
+ - Run `pip install git+https://github.com/ve-interactive/Analytics_utils.git`  
  
  
 ### Note:
