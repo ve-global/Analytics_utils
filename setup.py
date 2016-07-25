@@ -12,7 +12,7 @@ setup(
     author_email="julien.brayere@veinteractive.com",
     #
     # Packages
-    packages=["spark_analysis_utils"],
+    packages=["analytics_utils"],
     #
     # # Include additional files into the package
     # include_package_data=True,
