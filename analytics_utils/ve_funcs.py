@@ -8,7 +8,7 @@ cpm = (F.sum('media_cost_dollars_cpm'))
 cpm_with_fees = F.sum('cpm_including_fees')
 cpm_data = (F.sum('data_costs_cpm'))
 begin, end = F.unix_timestamp(F.min('datetime')), F.unix_timestamp(F.max('datetime'))
-duration = (begin - end)
+duration = (end - begin)
 
 
 def is_converted(df):
