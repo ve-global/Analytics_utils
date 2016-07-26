@@ -1,20 +1,8 @@
-from enum import Enum
-
 import pyspark.sql.functions as F
-from ve_utils import clock, to_pd
 
 from analytics_utils import ve_funcs as VeFuncs
-
-
-class Feeds(Enum):
-    standard = "Standard"
-    segment = "Segment"
-    pixel = "ConversionPixel"
-
-
-class VeData(Enum):
-    category = "CategoryView"
-    page = "PageView"
+from analytics_utils.ve_utils import clock, to_pd
+from analytics_utils.feeds import AppNexus, VeCapture
 
 
 class DataFeeds(object):
@@ -50,42 +38,43 @@ class DataFeeds(object):
         """ Date format can either be a datetime or a string of format '%Y-%m-%d'
         Warning: for VeData, the time filter may need to be also based on datetime.
         """
-        if data_type == Feeds.standard:
+        if data_type == AppNexus.standard:
             data = sql_context.read.parquet(DataFeeds.standard_df_raw)
-        elif data_type == Feeds.segment:
+        elif data_type == AppNexus.segment:
             data = sql_context.read.parquet(DataFeeds.segment_df_raw)
-        elif data_type == Feeds.pixel:
+        elif data_type == AppNexus.pixel:
             data = sql_context.read.parquet(DataFeeds.pixel_df_raw)
-        elif data_type == VeData.category:
+        elif data_type == VeCapture.category:
             data = sql_context.read.parquet(DataFeeds.ve_categ_raw)
-        elif data_type == VeData.page:
+        elif data_type == VeCapture.page:
             data = sql_context.read.parquet(DataFeeds.ve_page_raw)
         else:
             raise ValueError('Data type "%s" not implemented' % data_type)
 
         if from_date or to_date:
-            data = data.filter(VeFuncs.filter_date(from_date, to_date))
+            data = data.filter(VeFuncs.filter_date(from_date, to_date, data_type.value))
 
         return data
 
     @staticmethod
     @clock()
     @to_pd()
-    def count_lines(df, by='D'):
+    def count_lines(df, by='D', data_type=AppNexus.standard.value):
         """
         Count the number of lines by: Day, Week, Month, Year
         :param df:
         :param by: data to group on (D, M, Y, W)
+        :param data_type:
         :return: safe pandas dataframe
         """
         if by == 'D':
-            data = df.groupBy(VeFuncs.get_date('D').alias('day')).count()
+            data = df.groupBy(VeFuncs.get_date('D', data_type=data_type).alias('day')).count()
         elif by == 'M':
-            data = df.groupBy(VeFuncs.get_date('M').alias('month')).count()
+            data = df.groupBy(VeFuncs.get_date('M', data_type=data_type).alias('month')).count()
         elif by == 'Y':
-            data = df.groupBy(VeFuncs.get_date('Y').alias('year')).count()
+            data = df.groupBy(VeFuncs.get_date('Y', data_type=data_type).alias('year')).count()
         elif by == 'W':
-            data = df.groupBy(VeFuncs.get_date('W').alias('weekofyear')).count()
+            data = df.groupBy(VeFuncs.get_date('W', data_type=data_type).alias('weekofyear')).count()
         else:
             raise NotImplementedError("By '%s' not implemented" % str(by))
         return data
@@ -114,7 +103,7 @@ class DataFeeds(object):
                                 F.when(df.event_type.isin(['pc_conv', 'pv_conv']), 1).otherwise(0))
 
         auctions = (df.groupby('othuser_id_64', 'auction_id_64')
-                    .agg(F.sum('is_conv').alias('nb_convs')))
+                      .agg(F.sum('is_conv').alias('nb_convs')))
 
         converted_users = DataFeeds.get_converted_user_ids(auctions)['othuser_id_64'].tolist()
         users_df = df.filter(df.othuser_id_64.isin(converted_users))

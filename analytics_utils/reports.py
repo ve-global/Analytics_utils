@@ -1,8 +1,9 @@
 import pandas as pd
 import pyspark.sql.functions as F
-from data_feeds import DataFeeds, Feeds
-from ve_utils import clock, to_pd
 
+from analytics_utils.data_feeds import DataFeeds
+from analytics_utils.feeds import  AppNexus
+from analytics_utils.ve_utils import clock, to_pd
 from analytics_utils import ve_funcs as VeFuncs
 
 
@@ -48,7 +49,7 @@ def compare_standard_feed(report_path, sql_context, from_date=None, to_date=None
     from_date, to_date = df.index.min(), df.index.max()
 
     # 2. Getting the corresponding range of time in LLD
-    standard_df = DataFeeds.get_feed_parquet(sql_context, Feeds.standard, from_date, to_date)
+    standard_df = DataFeeds.get_feed_parquet(sql_context, AppNexus.standard, from_date, to_date)
     standard_df = agg_standard_feed(standard_df)
 
     # 3. Formatting LLD Data
