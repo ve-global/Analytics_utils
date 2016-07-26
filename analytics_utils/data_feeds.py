@@ -20,16 +20,16 @@ class DataFeeds(object):
     ve_page_raw = "%s/PageView/data/v1/" % url_ve
 
     @staticmethod
-    def add_columns(df):
+    def add_columns(df, data_type=AppNexus.standard.value):
         """
-        Add useful columns to the dataframe (date, is_conv, is_imp, is_click, is_viewed)
+        Add useful columns to the dataframe (date, is_conv, is_viewed)
         :param df:
+        :param data_type:
         :return:
         """
-        df = (df.withColumn('date', VeFuncs.get_date('D'))
-              .withColumn('is_conv', F.when(df.event_type.isin(['pc_conv', 'pv_conv']), 1).otherwise(0))
-              .withColumn('is_imp', F.when(df.event_type == 'imp', 1).otherwise(0))
-              .withColumn('is_viewed', F.when(df.view_result_type == 1, 1).otherwise(0))
+        df = (df.withColumn('date', VeFuncs.get_date('D', data_type))
+              .withColumn('is_conv', VeFuncs.is_converted(df))
+              .withColumn('is_viewed', VeFuncs.is_viewed(df))
               )
         return df
 
@@ -99,12 +99,21 @@ class DataFeeds(object):
         :return:  dataframe of converted users
         """
         if 'is_conv' not in df.columns:
-            df = df.withColumn('is_conv',
-                                F.when(df.event_type.isin(['pc_conv', 'pv_conv']), 1).otherwise(0))
+            df = df.withColumn('is_conv', VeFuncs.is_converted(df))
 
-        auctions = (df.groupby('othuser_id_64', 'auction_id_64')
-                      .agg(F.sum('is_conv').alias('nb_convs')))
+        all_users = (df.groupby('othuser_id_64')
+                       .agg(F.sum('is_conv').alias('nb_convs')))
 
-        converted_users = DataFeeds.get_converted_user_ids(auctions)['othuser_id_64'].tolist()
+        converted_users = (all_users.filter(all_users.nb_convs > 0)
+                                    .select('othuser_id_64')
+                                    .distinct()).tolist()
         users_df = df.filter(df.othuser_id_64.isin(converted_users))
         return users_df
+
+    @staticmethod
+    @clock()
+    def get_converted_auctions(df):
+        if 'is_conv' not in df.columns:
+            df = df.withColumn('is_conv', VeFuncs.is_converted(df))
+        auctions = df.groupby('auction_id_64').agg(F.sum('is_conv').alias('nb_convs'))
+        return auctions.filter(auctions.nb_convs > 0)

@@ -16,7 +16,7 @@ if not logger.handlers:
     logger.addHandler(file_handler)
 
 
-class NullLoger(object):
+class NullLogger(object):
     """Null implementation od a logger"""
     def debug(*arg, **kwargs):
         print("[DEBUG]: ", arg, kwargs)

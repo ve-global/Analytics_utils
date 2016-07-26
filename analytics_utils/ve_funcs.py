@@ -7,8 +7,24 @@ revenue = (F.sum('post_click_revenue') + F.sum('post_view_revenue'))
 cpm = (F.sum('media_cost_dollars_cpm'))
 cpm_with_fees = F.sum('cpm_including_fees')
 cpm_data = (F.sum('data_costs_cpm'))
-begin_auction, end_auction = F.unix_timestamp(F.min('datetime')), F.unix_timestamp(F.max('datetime'))
-duration = (end_auction - begin_auction)
+begin, end = F.unix_timestamp(F.min('datetime')), F.unix_timestamp(F.max('datetime'))
+duration = (begin - end)
+
+
+def is_converted(df):
+    """
+    :param df:
+    :return:
+    """
+    return F.when(df.event_type.isin(['pc_conv', 'pv_conv']), 1).otherwise(0)
+
+
+def is_viewed(df):
+    """
+    :param df:
+    :return:
+    """
+    return F.when(df.view_result_type == 1, 1).otherwise(0)
 
 
 def get_date(by='D', data_type=AppNexus.standard.value):
