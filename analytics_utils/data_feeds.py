@@ -104,9 +104,9 @@ class DataFeeds(object):
         all_users = (df.groupby('othuser_id_64')
                        .agg(F.sum('is_conv').alias('nb_convs')))
 
-        converted_users = DataFeeds.get_converted_user_ids(all_users)['othuser_id_64'].tolist()
-        users_df = df.filter(df.othuser_id_64.isin(converted_users))
-        return users_df
+        converted_users_ids = DataFeeds.get_converted_user_ids(all_users)['othuser_id_64'].tolist()
+        users_df = df.filter(df.othuser_id_64.isin(converted_users_ids))
+        return users_df, converted_users_ids
 
     @staticmethod
     @clock()
