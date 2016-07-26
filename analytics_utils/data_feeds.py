@@ -81,14 +81,14 @@ class DataFeeds(object):
 
     @staticmethod
     @clock()
-    @to_pd()
-    def get_converted_user_ids(auctions):
+    @to_pd(limit=10000000)
+    def get_converted_user_ids(df):
         """
         Get all the converted users ids.
         :param auctions: the auctions to filter on
         :return: safe pandas dataframe
         """
-        return auctions.filter(auctions.nb_convs > 0).select('othuser_id_64').distinct()
+        return df.filter(df.nb_convs > 0).select('othuser_id_64').distinct()
 
     @staticmethod
     @clock()
@@ -104,9 +104,7 @@ class DataFeeds(object):
         all_users = (df.groupby('othuser_id_64')
                        .agg(F.sum('is_conv').alias('nb_convs')))
 
-        converted_users = (all_users.filter(all_users.nb_convs > 0)
-                                    .select('othuser_id_64')
-                                    .distinct()).tolist()
+        converted_users = DataFeeds.get_converted_user_ids(all_users)['othuser_id_64'].tolist()
         users_df = df.filter(df.othuser_id_64.isin(converted_users))
         return users_df
 
