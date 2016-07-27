@@ -1,11 +1,26 @@
-from distutils.core import setup
+
+import re
+
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
+
+
+with open('analytics_utils/__init__.py', 'r') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
+
+if not version:
+    raise RuntimeError('Cannot find version information')
 
 setup(
     # Application name:
     name="analytics_utils",
 
     # Version number (initial):
-    version="0.1.4",
+    version=version,
 
     # Application author details:
     author="Julien Brayere",
@@ -14,8 +29,8 @@ setup(
     # Packages
     packages=["analytics_utils"],
     #
-    # # Include additional files into the package
-    # include_package_data=True,
+    # Include additional files into the package
+    include_package_data=True,
     #
     # # Details
     # url="http://pypi.python.org/pypi/MyApplication_v010/",
