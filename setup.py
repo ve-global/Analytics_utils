@@ -1,14 +1,20 @@
 from distutils.core import setup
 
 
-VERSION = __import__(analytics_utils).__version__
+
+with open('analytics_utils/__init__.py', 'r') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
+
+if not version:
+    raise RuntimeError('Cannot find version information')
 
 setup(
     # Application name:
     name="analytics_utils",
 
     # Version number (initial):
-    version=__version__,
+    version=version,
 
     # Application author details:
     author="Julien Brayere",
