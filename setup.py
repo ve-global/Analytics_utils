@@ -29,8 +29,8 @@ setup(
     # Packages
     packages=["analytics_utils"],
     #
-    # # Include additional files into the package
-    # include_package_data=True,
+    # Include additional files into the package
+    include_package_data=True,
     #
     # # Details
     # url="http://pypi.python.org/pypi/MyApplication_v010/",
