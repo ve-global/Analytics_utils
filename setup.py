@@ -1,11 +1,13 @@
 from distutils.core import setup
 
+exec(open('analytics_utils/version.py').read())
+
 setup(
     # Application name:
     name="analytics_utils",
 
     # Version number (initial):
-    version="0.1.4",
+    version=__version__,
 
     # Application author details:
     author="Julien Brayere",
