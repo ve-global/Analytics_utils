@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-
+import re
 
 with open('analytics_utils/__init__.py', 'r') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
