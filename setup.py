@@ -1,6 +1,7 @@
 from distutils.core import setup
 
-exec(open('analytics_utils/version.py').read())
+
+VERSION = __import__(analytics_utils).__version__
 
 setup(
     # Application name:
