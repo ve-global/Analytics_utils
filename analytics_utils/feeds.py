@@ -8,5 +8,7 @@ class AppNexus(Enum):
 
 
 class VeCapture(Enum):
-    category = "CategoryView"
+    category_1d = "CategoryView_1d"
+    category_7d = "CategoryView_7d"
+    category_30d = "CategoryView_30d"
     page = "PageView"

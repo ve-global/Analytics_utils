@@ -16,7 +16,10 @@ class DataFeeds(object):
     segment_df_raw = '%s/Segment/raw_parquet' % url_lld
     pixel_df_raw = '%s/ConversionPixel/raw_parquet' % url_lld
 
-    ve_categ_raw = "%s/CategoryView/data/v1/all/ve/" % url_ve
+    ve_categ_1d = "%s/CategoryView/data/v1/1d/ve/" % url_ve
+    ve_categ_7d = "%s/CategoryView/data/v1/7d/ve/" % url_ve
+    ve_categ_30d = "%s/CategoryView/data/v1/30d/ve/" % url_ve
+
     ve_page_raw = "%s/PageView/data/v1/" % url_ve
 
     @staticmethod
@@ -44,8 +47,12 @@ class DataFeeds(object):
             data = sql_context.read.parquet(DataFeeds.segment_df_raw)
         elif data_type == AppNexus.pixel:
             data = sql_context.read.parquet(DataFeeds.pixel_df_raw)
-        elif data_type == VeCapture.category:
-            data = sql_context.read.parquet(DataFeeds.ve_categ_raw)
+        elif data_type == VeCapture.category_1d:
+            data = sql_context.read.parquet(DataFeeds.ve_categ_1d)
+        elif data_type == VeCapture.category_7d:
+            data = sql_context.read.parquet(DataFeeds.ve_categ_7d)
+        elif data_type == VeCapture.category_30d:
+            data = sql_context.read.parquet(DataFeeds.ve_categ_30d)
         elif data_type == VeCapture.page:
             data = sql_context.read.parquet(DataFeeds.ve_page_raw)
         else:
