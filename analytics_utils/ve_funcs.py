@@ -19,6 +19,14 @@ def is_converted(df):
     return F.when(df.event_type.isin(['pc_conv', 'pv_conv']), 1).otherwise(0)
 
 
+def is_impression(df):
+    """
+    :param df:
+    :return:
+    """
+    return F.when(df.event_type == "imp", 1).otherwise(0)
+
+
 def is_viewed(df):
     """
     :param df:

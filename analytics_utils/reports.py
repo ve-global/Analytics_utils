@@ -26,7 +26,7 @@ def agg_standard_feed(standard_feed):
 
     standard_df = (standard_df.groupby('date', 'advertiser_id').agg(
         F.sum('is_conv').alias('nb_convs'),
-        F.sum('is_imp').alias('nb_imps'),
+        F.sum('is_impression').alias('nb_imps'),
         F.sum('is_click').alias('nb_clicks'),
         F.sum('is_viewed').alias('nb_viewed'),
         VeFuncs.revenue.alias('revenue'), VeFuncs.cpm.alias('cpm')

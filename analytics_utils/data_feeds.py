@@ -31,6 +31,7 @@ class DataFeeds(object):
         :return:
         """
         df = (df.withColumn('date', VeFuncs.get_date('D', data_type))
+              .withColumn('is_impression', VeFuncs.is_impression(df))
               .withColumn('is_conv', VeFuncs.is_converted(df))
               .withColumn('is_viewed', VeFuncs.is_viewed(df))
               )
