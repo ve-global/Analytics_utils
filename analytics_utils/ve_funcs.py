@@ -82,7 +82,7 @@ def filter_date(from_date=None, to_date=None, data_type=AppNexus.standard.value)
 
 
 def join(right_value, left_value, conditions, to_drop=None, drop_from=None, **kwargs):
-    joined = right_value.join(left_value, conditions, **kwargs)
+    joined = left_value.join(right_value, conditions, **kwargs)
 
     if not to_drop:
         return joined
