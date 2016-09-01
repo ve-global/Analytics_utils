@@ -79,3 +79,23 @@ def filter_date(from_date=None, to_date=None, data_type=AppNexus.standard.value)
         raise ValueError('from_date or to_date must be specified')
 
     return f
+
+
+def join(right_value, left_value, conditions, to_drop=None, drop_from=None, **kwargs):
+    joined = right_value.join(left_value, conditions, **kwargs)
+
+    if not to_drop:
+        return joined
+
+    to_drop_from = right_value
+    if drop_from == 'right':
+        pass
+    elif to_drop_from == 'left':
+        to_drop_from = left_value
+    else:
+        raise ValueError('drop_from must be either "right" or "left"')
+
+    for d in to_drop:
+        joined = joined.drop(to_drop_from[d])
+
+    return joined
