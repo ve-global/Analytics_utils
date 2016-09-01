@@ -5,6 +5,7 @@ from analytics_utils.ve_utils import clock, to_pd
 from analytics_utils.feeds import AppNexus, VeCapture
 
 
+
 class DataFeeds(object):
     """
     Reminder: !hdfs dfs -ls "wasb://derived@du2storvehdp1dn.blob.core.windows.net/PageView/"
@@ -67,6 +68,50 @@ class DataFeeds(object):
             data = data.filter(data.geo_country.isin([x.upper() for x in countries]))
 
         return data
+
+    @staticmethod
+    def get_appnexus_feeds(sql_context, from_date=None, to_date=None, countries=None, only_converted=False):
+        """
+        Returns an enriched version containing all the data from the AppNexus feed
+
+        :param sql_context:
+        :param from_date:
+        :param to_date:
+        :param countries:
+        :param only_converted:
+        :return:
+        """
+        standard_feed = DataFeeds.get_feed_parquet(sql_context, AppNexus.standard,
+                                                   from_date=from_date, to_date=to_date, countries=countries)
+        segment_feed = DataFeeds.get_feed_parquet(sql_context, AppNexus.segment,
+                                                  from_date=from_date, to_date=to_date)
+        pixel_feed = DataFeeds.get_feed_parquet(sql_context, AppNexus.pixel,
+                                                from_date=from_date, to_date=to_date)
+
+        if only_converted:
+            standard_feed, converted_users_ids = DataFeeds.get_converted_users(standard_feed)
+            segment_feed = segment_feed.filter(segment_feed.user_id_64.isin(converted_users_ids))
+            pixel_feed = pixel_feed.filter(pixel_feed.user_id_64.isin(converted_users_ids))
+            pixel_feed = pixel_feed.select('datetime', 'user_id_64', pixel_feed['pixel_id'].alias('pixel_id_2'))
+
+        # Mapping Users to Segment Feed
+        conditions_1 = ((standard_feed.datetime == segment_feed.datetime) &
+                      (standard_feed.othuser_id_64 == segment_feed.user_id_64))
+        to_drop_1 = ['datetime', 'user_id_64', 'year', 'month', 'day']
+        # Change order once updated
+        users_1 = VeFuncs.join(standard_feed, segment_feed, conditions_1,
+                               how='left_outer', to_drop=to_drop_1, drop_from='right')
+
+        # Mapping Users to the Conversion Pixel feed
+        conditions_2 = ((users_1.othuser_id_64 == pixel_feed.user_id_64) &
+                        (users_1.datetime == pixel_feed.datetime))
+
+        to_drop_2 = ['datetime', 'user_id_64']
+        # Change order once updated
+        users_2 = VeFuncs.join(users_1, pixel_feed, conditions_2,
+                               how='left_outer', to_drop=to_drop_2, drop_from='right')
+
+        return users_2
 
     @staticmethod
     @clock()
