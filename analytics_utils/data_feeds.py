@@ -38,7 +38,8 @@ class DataFeeds(object):
         return df
 
     @staticmethod
-    def get_feed_parquet(sql_context, data_type, from_date=None, to_date=None):
+    def get_feed_parquet(sql_context, data_type, from_date=None, to_date=None,
+                         countries=None):
         """ Date format can either be a datetime or a string of format '%Y-%m-%d'
         Warning: for VeData, the time filter may need to be also based on datetime.
         """
@@ -61,6 +62,9 @@ class DataFeeds(object):
 
         if from_date or to_date:
             data = data.filter(VeFuncs.filter_date(from_date, to_date, data_type.value))
+
+        if countries:
+            data = data.filter(data.geo_country.isin([x.upper() for x in countries]))
 
         return data
 
