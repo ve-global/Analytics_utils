@@ -2,9 +2,9 @@
 import re
 
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
-    from distutils.core import setup
+    from distutils.core import setup, find_packages
 
 
 with open('analytics_utils/__init__.py', 'r') as fd:
@@ -26,7 +26,7 @@ setup(
     author_email="julien.brayere@veinteractive.com",
     #
     # Packages
-    packages=["analytics_utils"],
+    packages=find_packages(),
     #
     # Include additional files into the package
     include_package_data=True,
