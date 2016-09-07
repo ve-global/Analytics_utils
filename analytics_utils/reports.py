@@ -2,9 +2,10 @@ import pandas as pd
 import pyspark.sql.functions as F
 
 from analytics_utils.data_feeds import DataFeeds
-from analytics_utils.feeds import  AppNexus
+from analytics_utils.feeds import AppNexus
 from analytics_utils.ve_utils import clock, to_pd
 from analytics_utils import ve_funcs as VeFuncs
+
 
 
 @clock()

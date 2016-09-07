@@ -5,7 +5,6 @@ from analytics_utils.ve_utils import clock, to_pd
 from analytics_utils.feeds import AppNexus, VeCapture
 
 
-
 class DataFeeds(object):
     """
     Reminder: !hdfs dfs -ls "wasb://derived@du2storvehdp1dn.blob.core.windows.net/PageView/"
@@ -20,8 +19,8 @@ class DataFeeds(object):
     ve_categ_1d = "%s/CategoryView/data/v1/1d/ve/" % url_ve
     ve_categ_7d = "%s/CategoryView/data/v1/7d/ve/" % url_ve
     ve_categ_30d = "%s/CategoryView/data/v1/30d/ve/" % url_ve
-
     ve_page_raw = "%s/PageView/data/v1/" % url_ve
+    ve_categorizer = "%s/categorizer/raw_parquet/" % url_ve
 
     @staticmethod
     def add_columns(df, data_type=AppNexus.standard.value):
@@ -58,6 +57,8 @@ class DataFeeds(object):
             data = sql_context.read.parquet(DataFeeds.ve_categ_30d)
         elif data_type == VeCapture.page:
             data = sql_context.read.parquet(DataFeeds.ve_page_raw)
+        elif data_type == VeCapture.categorizer:
+            data = sql_context.read.parquet(DataFeeds.ve_categorizer)
         else:
             raise ValueError('Data type "%s" not implemented' % data_type)
 
@@ -96,7 +97,7 @@ class DataFeeds(object):
 
         # Mapping Users to Segment Feed
         conditions_1 = ((standard_feed.datetime == segment_feed.datetime) &
-                      (standard_feed.othuser_id_64 == segment_feed.user_id_64))
+                        (standard_feed.othuser_id_64 == segment_feed.user_id_64))
         to_drop_1 = ['datetime', 'user_id_64', 'year', 'month', 'day']
         # Change order once updated
         users_1 = VeFuncs.join(standard_feed, segment_feed, conditions_1,
