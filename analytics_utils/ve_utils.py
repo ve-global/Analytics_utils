@@ -42,8 +42,8 @@ def to_pd(limit=COLLECT_LIMIT):
         def limit_size(*args, **kwargs):
             _result = func(*args, **kwargs).limit(limit).toPandas()
             if _result.shape[0] == limit:
-                 logger.warning('[{name}] the standard dataframe may be larger than the limit ({limit})'.format(
-                        name=func.__name__, limit=limit))
+                logger.warning('[{name}] the standard dataframe may be larger than the limit ({limit})'.format(
+                                name=func.__name__, limit=limit))
             return _result
         return limit_size
     return decorate
