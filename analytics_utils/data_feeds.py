@@ -71,29 +71,35 @@ class DataFeeds(object):
         return data
 
     @staticmethod
-    def get_appnexus_feeds(sql_context, from_date=None, to_date=None, countries=None, only_converted=False):
+    def get_appnexus_feeds(sql_context, standard_feed=None, segment_feed=None, pixel_feed=None,
+                           from_date=None, to_date=None, countries=None, only_converted=False):
         """
         Returns an enriched version containing all the data from the AppNexus feed
 
         :param sql_context:
+        :param standard_feed:
+        :param segment_feed:
+        :param pixel_feed:
         :param from_date:
         :param to_date:
         :param countries:
         :param only_converted:
         :return:
         """
-        standard_feed = DataFeeds.get_feed_parquet(sql_context, AppNexus.standard,
-                                                   from_date=from_date, to_date=to_date, countries=countries)
-        segment_feed = DataFeeds.get_feed_parquet(sql_context, AppNexus.segment,
-                                                  from_date=from_date, to_date=to_date)
-        pixel_feed = DataFeeds.get_feed_parquet(sql_context, AppNexus.pixel,
-                                                from_date=from_date, to_date=to_date)
+        standard_feed = standard_feed or DataFeeds.get_feed_parquet(sql_context, AppNexus.standard,
+                                                                    from_date=from_date, to_date=to_date,
+                                                                    countries=countries)
+        segment_feed = segment_feed or DataFeeds.get_feed_parquet(sql_context, AppNexus.segment,
+                                                                  from_date=from_date, to_date=to_date)
+        pixel_feed = pixel_feed or DataFeeds.get_feed_parquet(sql_context, AppNexus.pixel,
+                                                              from_date=from_date, to_date=to_date)
 
         if only_converted:
             standard_feed, converted_users_ids = DataFeeds.get_converted_users(standard_feed)
             segment_feed = segment_feed.filter(segment_feed.user_id_64.isin(converted_users_ids))
             pixel_feed = pixel_feed.filter(pixel_feed.user_id_64.isin(converted_users_ids))
-            pixel_feed = pixel_feed.select('datetime', 'user_id_64', pixel_feed['pixel_id'].alias('pixel_id_2'))
+
+        pixel_feed = pixel_feed.select('datetime', 'user_id_64', pixel_feed['pixel_id'].alias('pixel_id_2'))
 
         # Mapping Users to Segment Feed
         conditions_1 = ((standard_feed.datetime == segment_feed.datetime) &
