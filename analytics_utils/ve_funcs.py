@@ -1,6 +1,7 @@
 import pyspark.sql.functions as F
 
 from analytics_utils.feeds import VeCapture, AppNexus
+from .ve_utils import clock, to_pd
 
 
 revenue = (F.sum('post_click_revenue') + F.sum('post_view_revenue'))
@@ -102,3 +103,32 @@ def join(left_value, right_value, conditions, to_drop=None, drop_from=None, **kw
     return joined
 
 
+@clock()
+@to_pd()
+def get_pixel_converted_users(standard_feed, pixel_ids):
+    users_that_converted = (standard_feed
+                            .filter(standard_feed.pixel_id.isin(pixel_ids))
+                            .select('othuser_id_64').distinct())
+    return users_that_converted
+
+
+def filter_pixel_converted_users(standard_feed, pixels_mapping_df, is_conv_func):
+    """
+    Filter the standard feed only on users where the pixel name is associated to a conversion.
+    :param standard_feed
+    :param pixels_mapping_df:
+    :param is_conv_func:
+    :return:
+    """
+    pixels_mapping_df['is_conv_pixel'] = pixels_mapping_df['pixel_name'].apply(is_conv_func)
+    converted_pixels = pixels_mapping_df[pixels_mapping_df['is_conv_pixel'] == 1]['pixel_id'].tolist()
+
+    users_that_converted = get_pixel_converted_users(standard_feed,
+                                                     converted_pixels)['othuser_id_64'].tolist()
+
+    converted_users = standard_feed.filter(standard_feed.othuser_id_64.isin(users_that_converted))
+    converted_users = converted_users.join(pixels_mapping_df,
+                                           pixels_mapping_df['pixel_id'] == converted_users.pixel_id,
+                                           how='left_outer').drop(pixels_mapping_df['pixel_id'])
+
+    return converted_users, users_that_converted

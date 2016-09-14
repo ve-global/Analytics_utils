@@ -72,7 +72,7 @@ class DataFeeds(object):
 
     @staticmethod
     def get_appnexus_feeds(sql_context, standard_feed=None, segment_feed=None, pixel_feed=None,
-                           from_date=None, to_date=None, countries=None, only_converted=False):
+                           from_date=None, to_date=None, countries=None):
         """
         Returns an enriched version containing all the data from the AppNexus feed
 
@@ -94,11 +94,6 @@ class DataFeeds(object):
         pixel_feed = pixel_feed or DataFeeds.get_feed_parquet(sql_context, AppNexus.pixel,
                                                               from_date=from_date, to_date=to_date)
 
-        if only_converted:
-            standard_feed, converted_users_ids = DataFeeds.get_converted_users(standard_feed)
-            segment_feed = segment_feed.filter(segment_feed.user_id_64.isin(converted_users_ids))
-            pixel_feed = pixel_feed.filter(pixel_feed.user_id_64.isin(converted_users_ids))
-
         pixel_feed = pixel_feed.select('datetime', 'user_id_64', pixel_feed['pixel_id'].alias('pixel_id_2'))
 
         # Mapping Users to Segment Feed
@@ -119,6 +114,7 @@ class DataFeeds(object):
                                how='left_outer', to_drop=to_drop_2, drop_from='right')
 
         return users_2
+
 
     @staticmethod
     @clock()
@@ -158,7 +154,7 @@ class DataFeeds(object):
     @clock()
     def get_converted_users(df):
         """
-        Returns a Dataframe containing all the users that converted
+        Returns a Dataframe containing all the users that converted based on AppNexus pc events
         :param df: dataframe to filter
         :return:  dataframe of converted users
         """
