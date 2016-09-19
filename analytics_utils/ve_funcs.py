@@ -83,7 +83,17 @@ def filter_date(from_date=None, to_date=None, data_type=AppNexus.standard.value)
 
 
 def join(left_value, right_value, conditions, to_drop=None, drop_from=None, **kwargs):
+    """
+    Join two dataframe given a certain conditions on drop the key specified in `to_drop`
 
+    :param left_value:
+    :param right_value:
+    :param conditions:
+    :param to_drop:
+    :param drop_from:
+    :param kwargs:
+    :return:
+    """
     joined = left_value.join(right_value, conditions, **kwargs)
 
     if not to_drop:
@@ -105,9 +115,9 @@ def join(left_value, right_value, conditions, to_drop=None, drop_from=None, **kw
 
 @clock()
 @to_pd()
-def get_pixel_converted_users(standard_feed, pixel_ids):
+def get_pixel_converted_users(standard_feed, converted_pixel_ids):
     users_that_converted = (standard_feed
-                            .filter(standard_feed.pixel_id.isin(pixel_ids))
+                            .filter(standard_feed.pixel_id.isin(converted_pixel_ids))
                             .select('othuser_id_64').distinct())
     return users_that_converted
 

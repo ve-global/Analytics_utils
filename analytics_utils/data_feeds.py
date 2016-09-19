@@ -66,7 +66,13 @@ class DataFeeds(object):
             data = data.filter(VeFuncs.filter_date(from_date, to_date, data_type.value))
 
         if countries:
-            data = data.filter(data.geo_country.isin([x.upper() for x in countries]))
+            countries = [x.upper() for x in countries]
+            if isinstance(data_type, AppNexus):
+                data = data.filter(data.geo_country.isin(countries))
+            elif isinstance(data_type, VeCapture) and not isinstance(data_type, VeCapture.categorizer):
+                data = data.filter(data.geo_info.getField('country_code').isin(countries))
+            else:
+                raise NotImplementedError('Countries filter not implemented for this type of data')
 
         return data
 
@@ -114,7 +120,6 @@ class DataFeeds(object):
                                how='left_outer', to_drop=to_drop_2, drop_from='right')
 
         return users_2
-
 
     @staticmethod
     @clock()
