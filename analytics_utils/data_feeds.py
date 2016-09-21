@@ -25,7 +25,11 @@ class DataFeeds(object):
     @staticmethod
     def add_columns(df, data_type=AppNexus.standard.value):
         """
-        Add useful columns to the dataframe (date, is_conv, is_viewed)
+        Add useful columns to the dataframe:
+         - date
+         - is_impression
+         - is_conv, is_pc_conv, is_pv_conv
+         - is_viewed
         :param df:
         :param data_type:
         :return:
@@ -34,6 +38,12 @@ class DataFeeds(object):
               .withColumn('is_impression', VeFuncs.is_impression(df))
               .withColumn('is_conv', VeFuncs.is_converted(df))
               .withColumn('is_viewed', VeFuncs.is_viewed(df))
+              .withColumn('is_pc_conv',
+                          F.when(df.event_type == 'pc_conv', 1).otherwise(0)
+                          )
+              .withColumn('is_pv_conv',
+                          F.when(df.event_type == 'pv_conv', 1).otherwise(0)
+                          )
               )
         return df
 
@@ -150,7 +160,7 @@ class DataFeeds(object):
     def get_converted_user_ids(df):
         """
         Get all the converted users ids.
-        :param auctions: the auctions to filter on
+        :param df: the auctions to filter on
         :return: safe pandas dataframe
         """
         return df.filter(df.nb_convs > 0).select('othuser_id_64').distinct()

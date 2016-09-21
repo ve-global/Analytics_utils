@@ -1,5 +1,8 @@
 import functools
 import time
+from collections import Counter
+from pyspark.sql.functions import udf
+from pyspark.sql.types import MapType, StringType, IntegerType
 
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
@@ -8,6 +11,20 @@ from analytics_utils.logs import logger
 
 DEFAULT_FMT = '[{name}] {elapsed:0.8f} min'
 COLLECT_LIMIT = 5000000
+
+
+def counter(x):
+    return dict(Counter(x))
+
+
+def get_most_common(x):
+    try:
+        return Counter(x).most_common()[0][0]
+    except IndexError:
+        return None
+
+counter_udf = udf(counter, MapType(keyType=StringType(), valueType=IntegerType()))
+most_common_udf = udf(get_most_common, StringType())
 
 
 def clock(fmt=DEFAULT_FMT):

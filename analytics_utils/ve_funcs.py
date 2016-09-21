@@ -1,7 +1,21 @@
 import pyspark.sql.functions as F
+from enum import Enum
+import pandas as pd
 
 from analytics_utils.feeds import VeCapture, AppNexus
 from .ve_utils import clock, to_pd
+from . import logs
+
+
+class AuctionType(Enum):
+    retargeting = 1
+    prospecting = 2
+    prospecting_retargeting = 3
+
+
+class PixelType(Enum):
+    conversion = 1
+    landing = 0
 
 
 revenue = (F.sum('post_click_revenue') + F.sum('post_view_revenue'))
@@ -142,3 +156,86 @@ def filter_pixel_converted_users(standard_feed, pixels_mapping_df, is_conv_func)
                                            how='left_outer').drop(pixels_mapping_df['pixel_id'])
 
     return converted_users, users_that_converted
+
+
+# Rules
+
+def pixel_type_FR(pixel_name):
+    return PixelType.conversion.value if 'converted' in pixel_name.lower() else PixelType.landing.value
+
+
+def campaign_type_FR(x):
+    if not x:
+        return None
+    name = x.lower()
+    if 'retargeting' in name and 'prospecting' in name:
+        return AuctionType.prospecting_retargeting.name
+    elif 'prospecting' in name:
+        return AuctionType.prospecting.name
+    elif 'retargeting' in name or 'AFF' in x or 'affiliate' in name or 'CPA' in x:
+        return AuctionType.retargeting.name
+    else:
+        return AuctionType.prospecting.name
+
+
+mapping_rules = {
+    'FR': {
+        'pixel_type': pixel_type_FR,
+        'campaign_type': campaign_type_FR
+    }
+}
+
+
+def get_converted_pixels(pixel_names, rule):
+    converted_pixels = [k for k, x in pixel_names.items()
+                        if rule(x)]
+    return converted_pixels
+
+
+def filter_pixel_converted_users(standard_feed, mappings, pixel_rules, logger=None):
+    """
+    Find conversion pixels and returns all the events for users that have at least
+    one event that converted
+    """
+    logger = logger or logs.logger
+
+    converted_pixels = get_converted_pixels(mappings['pixel_name'], pixel_rules)
+    logger.info("Converted pixels: %d" % len(converted_pixels))
+
+    users_that_converted = (standard_feed
+                            .filter(standard_feed.pixel_id.isin(converted_pixels))
+                            .select('othuser_id_64').distinct()).toPandas()['othuser_id_64'].tolist()
+
+    logger.info("Users that converted: %d" % len(users_that_converted))
+
+    converted_users = standard_feed.filter(standard_feed.othuser_id_64.isin(
+        [int(x) for x in users_that_converted]))
+
+    return converted_users
+
+
+def add_mapping_data(feed, sql_context, mappings, rules):
+    """
+    Join a feed with the mapping:
+     - advertiser_id -> name
+     - pixel_id -> name
+     - line_item_id -> name
+     - insertion_order_name
+
+    :param feed:
+    :param sql_context:
+    :param mappings:
+    :param rule: rule to deter
+    :return:
+    """
+    ids, names = zip(*mappings['pixel_name'].items())
+    pixels_df = pd.DataFrame({'pixel_id': ids, 'pixel_name': names})
+    pixels_df['is_conv_pixel'] = pixels_df['pixel_name'].apply(rules['pixel_type'])
+    pixels_df['is_conv_pixel'] = pixels_df['pixel_name'].apply(rules['pixel_type'])
+
+    pixels_df = sql_context.createDataFrame(pixels_df)
+
+    feed = (feed.join(pixels_df, feed.pixel_id == pixels_df.pixel_id)
+                .drop(pixels_df.pixel_id))
+
+    return feed
