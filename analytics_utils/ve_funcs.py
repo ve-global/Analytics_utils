@@ -186,20 +186,20 @@ mapping_rules = {
 }
 
 
-def get_converted_pixels(pixel_names, rule):
+def get_converted_pixels(pixel_names, pixel_naming_rule):
     converted_pixels = [k for k, x in pixel_names.items()
-                        if rule(x)]
+                        if pixel_naming_rule(x)]
     return converted_pixels
 
 
-def filter_pixel_converted_users(standard_feed, mappings, pixel_rules, logger=None):
+def filter_pixel_converted_users(standard_feed, mappings, pixel_naming_rule, logger=None):
     """
     Find conversion pixels and returns all the events for users that have at least
     one event that converted
     """
     logger = logger or logs.logger
 
-    converted_pixels = get_converted_pixels(mappings['pixel_name'], pixel_rules)
+    converted_pixels = get_converted_pixels(mappings['pixel_name'], pixel_naming_rule)
     logger.info("Converted pixels: %d" % len(converted_pixels))
 
     users_that_converted = (standard_feed
@@ -214,28 +214,39 @@ def filter_pixel_converted_users(standard_feed, mappings, pixel_rules, logger=No
     return converted_users
 
 
-def add_mapping_data(feed, sql_context, mappings, rules):
+def map_pixels(feed, sql_context, pixels_mapping, pixel_naming_rule):
     """
-    Join a feed with the mapping:
-     - advertiser_id -> name
-     - pixel_id -> name
-     - line_item_id -> name
-     - insertion_order_name
-
     :param feed:
     :param sql_context:
-    :param mappings:
-    :param rule: rule to deter
+    :param pixels_mapping:
+    :param pixel_naming_rule:
     :return:
     """
-    ids, names = zip(*mappings['pixel_name'].items())
-    pixels_df = pd.DataFrame({'pixel_id': ids, 'pixel_name': names})
-    pixels_df['is_conv_pixel'] = pixels_df['pixel_name'].apply(rules['pixel_type'])
-    pixels_df['is_conv_pixel'] = pixels_df['pixel_name'].apply(rules['pixel_type'])
+    ids, names = zip(*pixels_mapping.items())
+    df = pd.DataFrame({'pixel_id': ids, 'pixel_name': names})
+    df['is_conv_pixel'] = df['pixel_name'].apply(pixel_naming_rule)
+    df = sql_context.createDataFrame(df)
 
-    pixels_df = sql_context.createDataFrame(pixels_df)
+    feed = (feed.join(df, feed.pixel_id == df.pixel_id)
+                .drop(df.pixel_id))
 
-    feed = (feed.join(pixels_df, feed.pixel_id == pixels_df.pixel_id)
-                .drop(pixels_df.pixel_id))
+    return feed
+
+
+def map_line_items(feed, sql_context, line_items_mapping, line_items_mapping_rule):
+    """
+    :param feed:
+    :param sql_context:
+    :param line_items_mapping:
+    :param line_items_mapping_rule:
+    :return:
+    """
+    ids, names = zip(*line_items_mapping)
+    df = pd.DataFrame({'line_item_id': ids, 'line_item_name': names})
+    df['line_item_type'] = df['line_item_name'].apply(line_items_mapping_rule)
+    df = sql_context.createDataFrame(df)
+
+    feed = (feed.join(df, feed.line_item_id == df.line_item_id)
+                .drop(df.line_item_id))
 
     return feed
