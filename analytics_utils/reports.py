@@ -7,7 +7,6 @@ from analytics_utils.ve_utils import clock, to_pd
 from analytics_utils import ve_funcs as VeFuncs
 
 
-
 @clock()
 @to_pd()
 def agg_standard_feed(standard_feed):
