@@ -19,7 +19,7 @@ class DataFeeds(object):
     ve_categ_1d = "%s/CategoryView/data/v1/1d/ve/" % url_ve
     ve_categ_7d = "%s/CategoryView/data/v1/7d/ve/" % url_ve
     ve_categ_30d = "%s/CategoryView/data/v1/30d/ve/" % url_ve
-    ve_page_raw = "%s/PageView/data/v1/" % url_ve
+    ve_page_view_raw = "%s/PageView/data/v1/" % url_ve
     ve_categorizer = "%s/categorizer/raw_parquet/" % url_ve
 
     @staticmethod
@@ -66,7 +66,7 @@ class DataFeeds(object):
         elif data_type == VeCapture.category_30d:
             data = sql_context.read.parquet(DataFeeds.ve_categ_30d)
         elif data_type == VeCapture.page_view:
-            data = sql_context.read.parquet(DataFeeds.ve_page_raw)
+            data = sql_context.read.parquet(DataFeeds.ve_page_view_raw)
         elif data_type == VeCapture.categorizer:
             data = sql_context.read.parquet(DataFeeds.ve_categorizer)
         else:
