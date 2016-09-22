@@ -3,7 +3,7 @@ from enum import Enum
 import pandas as pd
 
 from .feeds import VeCapture, AppNexus
-from .ve_utils import clock, to_pd
+from .ve_utils import clock, to_pd, counter_udf, most_common_udf
 from . import logs
 
 
@@ -164,20 +164,33 @@ def get_pixel_converted_users(standard_feed, converted_pixel_ids):
     return users_that_converted
 
 
-def get_converted_pixels(pixel_names, pixel_naming_rule):
-    converted_pixels = [k for k, x in pixel_names.items()
+def get_converted_pixels(pixels_mapping, pixel_naming_rule):
+    """
+    Returns all the pixels that are conversion one given the
+    `pixel_naming_rule`
+    :param pixels_mapping: mapping between a pixel_id and pixel_name
+    :param pixel_naming_rule: function return whether or not a pixel is
+    a conversion pixel
+    :return:
+    """
+    converted_pixels = [k for k, x in pixels_mapping.items()
                         if pixel_naming_rule(x)]
     return converted_pixels
 
 
-def filter_pixel_converted_users(standard_feed, mappings, pixel_naming_rule, logger=None):
+def filter_pixel_converted_users(standard_feed, pixels_mapping, pixel_naming_rule, logger=None):
     """
     Find conversion pixels and returns all the events for users that have at least
-    one event that converted
+    one event that converted.
+    :param standard_feed:
+    :param pixels_mapping:
+    :param pixel_naming_rule:
+    :param logger:
+    :return:
     """
     logger = logger or logs.logger
 
-    converted_pixels = get_converted_pixels(mappings['pixel_name'], pixel_naming_rule)
+    converted_pixels = get_converted_pixels(pixels_mapping, pixel_naming_rule)
     logger.info("Converted pixels: %d" % len(converted_pixels))
 
     users_that_converted = get_pixel_converted_users(standard_feed,
@@ -228,4 +241,61 @@ def map_line_items(feed, sql_context, line_items_mapping, line_items_mapping_rul
     feed = (feed.join(df, feed.line_item_id == df.line_item_id)
                 .drop(df.line_item_id))
 
+    return feed
+
+
+def map_advertisers(sql_context, feed, advertisers_mapping):
+    """
+    Add the `line_item_name` to the dataframe mapping on the `line_item_id`
+    :param feed:
+    :param sql_context:
+    :param feed:
+    :param advertisers_mapping:
+    :return:
+    """
+    ids, names = zip(*advertisers_mapping)
+    df = pd.DataFrame({'advertiser_id': ids, 'advertiser_name': names})
+    df = sql_context.createDataFrame(df)
+
+    feed = (feed.join(df, feed.advertiser_id == df.advertiser_id)
+            .drop(df.advertiser_id))
+
+    return feed
+
+
+def get_user_infos(feed):
+    """
+    Returns an aggregated version of users information with:
+     - the age
+     - the operating system
+     - the gender
+    :param feed:
+    :return:
+    """
+    feed = feed.withColumn('age_clean',
+                            F.when( (feed.age < 10) | (feed.age > 100) , None).otherwise(feed.age)
+                            )
+    users = feed.groupby('othuser_id_64').agg(
+             F.collect_list('operating_system').alias('operating_systems'),
+             F.collect_list('gender').alias("genders"),
+             F.collect_list('age_clean').alias("ages")
+        )
+    users = (users.withColumn('operating_systems', counter_udf('operating_systems'))
+                  .withColumn('genders', counter_udf('genders'))
+                  .withColumn('ages', counter_udf('ages'))
+             )
+    return users
+
+
+def map_whitelist(sql_context, feed, whitelist_df):
+    whitelist_df = whitelist_df[['Advertiser Id', 'Customer ID', 'Sector']]
+    whitelist_df = whitelist_df.rename(columns={'Advertiser Id': 'advertiser_id',
+                                                'Customer ID': 'customer_id',
+                                                'Sector': 'advertiser_categ_whitelist'})
+    whitelist_df = whitelist_df[whitelist_df.advertiser_id.notnull() & whitelist_df.customer_id.notnull()]
+    whitelist = sql_context.createDataFrame(whitelist_df)
+
+    feed = (feed.join(whitelist, feed.advertiser_id == whitelist.advertiser_id, how='left_outer')
+                .drop(whitelist.advertiser_id)
+            )
     return feed
