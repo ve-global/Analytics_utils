@@ -2,7 +2,7 @@ import pyspark.sql.functions as F
 from enum import Enum
 import pandas as pd
 
-from analytics_utils.feeds import VeCapture, AppNexus
+from .feeds import VeCapture, AppNexus
 from .ve_utils import clock, to_pd
 from . import logs
 
@@ -127,37 +127,6 @@ def join(left_value, right_value, conditions, to_drop=None, drop_from=None, **kw
     return joined
 
 
-@clock()
-@to_pd()
-def get_pixel_converted_users(standard_feed, converted_pixel_ids):
-    users_that_converted = (standard_feed
-                            .filter(standard_feed.pixel_id.isin(converted_pixel_ids))
-                            .select('othuser_id_64').distinct())
-    return users_that_converted
-
-
-def filter_pixel_converted_users(standard_feed, pixels_mapping_df, is_conv_func):
-    """
-    Filter the standard feed only on users where the pixel name is associated to a conversion.
-    :param standard_feed
-    :param pixels_mapping_df:
-    :param is_conv_func:
-    :return:
-    """
-    pixels_mapping_df['is_conv_pixel'] = pixels_mapping_df['pixel_name'].apply(is_conv_func)
-    converted_pixels = pixels_mapping_df[pixels_mapping_df['is_conv_pixel'] == 1]['pixel_id'].tolist()
-
-    users_that_converted = get_pixel_converted_users(standard_feed,
-                                                     converted_pixels)['othuser_id_64'].tolist()
-
-    converted_users = standard_feed.filter(standard_feed.othuser_id_64.isin(users_that_converted))
-    converted_users = converted_users.join(pixels_mapping_df,
-                                           pixels_mapping_df['pixel_id'] == converted_users.pixel_id,
-                                           how='left_outer').drop(pixels_mapping_df['pixel_id'])
-
-    return converted_users, users_that_converted
-
-
 # Rules
 
 def pixel_type_FR(pixel_name):
@@ -186,6 +155,15 @@ mapping_rules = {
 }
 
 
+@clock()
+@to_pd()
+def get_pixel_converted_users(standard_feed, converted_pixel_ids):
+    users_that_converted = (standard_feed
+                            .filter(standard_feed.pixel_id.isin(converted_pixel_ids))
+                            .select('othuser_id_64').distinct())
+    return users_that_converted
+
+
 def get_converted_pixels(pixel_names, pixel_naming_rule):
     converted_pixels = [k for k, x in pixel_names.items()
                         if pixel_naming_rule(x)]
@@ -202,9 +180,8 @@ def filter_pixel_converted_users(standard_feed, mappings, pixel_naming_rule, log
     converted_pixels = get_converted_pixels(mappings['pixel_name'], pixel_naming_rule)
     logger.info("Converted pixels: %d" % len(converted_pixels))
 
-    users_that_converted = (standard_feed
-                            .filter(standard_feed.pixel_id.isin(converted_pixels))
-                            .select('othuser_id_64').distinct()).toPandas()['othuser_id_64'].tolist()
+    users_that_converted = get_pixel_converted_users(standard_feed,
+                                                     converted_pixels)['othuser_id_64'].tolist()
 
     logger.info("Users that converted: %d" % len(users_that_converted))
 
@@ -216,6 +193,7 @@ def filter_pixel_converted_users(standard_feed, mappings, pixel_naming_rule, log
 
 def map_pixels(feed, sql_context, pixels_mapping, pixel_naming_rule):
     """
+    Add the `pixel_name` to the dataframe mapping on the `pixel_id`
     :param feed:
     :param sql_context:
     :param pixels_mapping:
@@ -235,6 +213,7 @@ def map_pixels(feed, sql_context, pixels_mapping, pixel_naming_rule):
 
 def map_line_items(feed, sql_context, line_items_mapping, line_items_mapping_rule):
     """
+    Add the `line_item_name` to the dataframe mapping on the `line_item_id`
     :param feed:
     :param sql_context:
     :param line_items_mapping:
