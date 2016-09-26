@@ -273,8 +273,9 @@ def get_user_infos(feed):
     :return:
     """
     feed = feed.withColumn('age_clean',
-                            F.when( (feed.age < 10) | (feed.age > 100) , None).otherwise(feed.age)
+                            F.when((feed.age < 10) | (feed.age > 100), None).otherwise(feed.age)
                             )
+
     users = feed.groupby('othuser_id_64').agg(
              F.collect_list('operating_system').alias('operating_systems'),
              F.collect_list('gender').alias("genders"),
