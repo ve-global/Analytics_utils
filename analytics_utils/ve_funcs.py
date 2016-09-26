@@ -218,28 +218,28 @@ def map_pixels(feed, sql_context, pixels_mapping, pixel_naming_rule):
     df['is_conv_pixel'] = df['pixel_name'].apply(pixel_naming_rule)
     df = sql_context.createDataFrame(df)
 
-    feed = (feed.join(df, feed.pixel_id == df.pixel_id)
+    feed = (feed.join(df, feed.pixel_id == df.pixel_id, how="left_outer")
                 .drop(df.pixel_id))
 
     return feed
 
 
-def map_line_items(feed, sql_context, line_items_mapping, line_items_mapping_rule):
+def map_insertion_orders(feed, sql_context, insertion_orders_mapping, insertion_orders_mapping_rule):
     """
-    Add the `line_item_name` to the dataframe mapping on the `line_item_id`
+    Add the `insertion_order_name` to the dataframe mapping on the `insertion_order_id`
     :param feed:
     :param sql_context:
-    :param line_items_mapping:
-    :param line_items_mapping_rule:
+    :param insertion_order_mapping:
+    :param insertion_order_mapping_rule:
     :return:
     """
-    ids, names = zip(*line_items_mapping)
-    df = pd.DataFrame({'line_item_id': ids, 'line_item_name': names})
-    df['line_item_type'] = df['line_item_name'].apply(line_items_mapping_rule)
+    ids, names = zip(*insertion_orders_mapping.items())
+    df = pd.DataFrame({'insertion_order_id': ids, 'insertion_order_name': names})
+    df['insertion_order_type'] = df['insertion_order_name'].apply(insertion_orders_mapping_rule)
     df = sql_context.createDataFrame(df)
 
-    feed = (feed.join(df, feed.line_item_id == df.line_item_id)
-                .drop(df.line_item_id))
+    feed = (feed.join(df, feed.insertion_order_id == df.insertion_order_id, how="left_outer")
+                .drop(df.insertion_order_id))
 
     return feed
 
@@ -253,11 +253,11 @@ def map_advertisers(sql_context, feed, advertisers_mapping):
     :param advertisers_mapping:
     :return:
     """
-    ids, names = zip(*advertisers_mapping)
+    ids, names = zip(*advertisers_mapping.items())
     df = pd.DataFrame({'advertiser_id': ids, 'advertiser_name': names})
     df = sql_context.createDataFrame(df)
 
-    feed = (feed.join(df, feed.advertiser_id == df.advertiser_id)
+    feed = (feed.join(df, feed.advertiser_id == df.advertiser_id, how="left_outer")
             .drop(df.advertiser_id))
 
     return feed
