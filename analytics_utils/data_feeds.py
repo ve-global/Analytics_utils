@@ -287,7 +287,6 @@ class DataFeeds(object):
             F.sum('is_monthly_unique').alias('nb_monthly_unique'),
             # Others
             F.collect_set('pixel_id').alias('pixel_ids'),
-            F.sum('pixel_match').alias('pixels_match'),
             F.collect_set('pixel_name').alias('pixels_names'),
             F.sum('is_conv_pixel').alias('nb_conv_pixels'),
             # Users
