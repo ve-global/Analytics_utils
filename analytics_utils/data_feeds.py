@@ -137,7 +137,7 @@ class DataFeeds(object):
     @staticmethod
     def join_categorizer(feed, categorizer_feed=None, sql_context=None):
         customer_ids = feed.select('customer_id').distinct().collect()
-        logs.logger.info("%d customer ids found")
+        logs.logger.info("%d customer ids found" % len(customer_ids))
         customer_ids = [x.customer_id for x in customer_ids]
 
         if not sql_context and not categorizer_feed:
@@ -152,7 +152,7 @@ class DataFeeds(object):
 
         feed = (feed.join(categorizer,
                           feed.customer_id == categorizer.customerid,
-                          how='leftouter')
+                          how='left_outer')
                     .drop(categorizer.customerid))
 
         return feed
@@ -169,7 +169,6 @@ class DataFeeds(object):
                          feed.othuser_id_64 == page_view_feed.adnxs)
 
         return feed
-
 
     @staticmethod
     def filter_converted_users(sql_context, standard_feed, country,
