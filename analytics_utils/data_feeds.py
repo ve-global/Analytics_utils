@@ -184,9 +184,9 @@ class DataFeeds(object):
 
         if line_items_mapping:
             logs.logger.info('Mapping line items')
-            feed = ve_funcs.map_line_items(feed, sql_context,
-                                           line_items_mapping,
-                                           mapping['campaign_type'])
+            feed = ve_funcs.map_insertion_orders(feed, sql_context,
+                                                 line_items_mapping,
+                                                 mapping['campaign_type'])
         if pixels_mapping:
             logs.logger.info('Mapping pixels')
             feed = ve_funcs.map_pixels(feed, sql_context,
