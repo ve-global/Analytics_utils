@@ -1,8 +1,8 @@
 import functools
 import time
 from collections import Counter
-from pyspark.sql.functions import udf
-from pyspark.sql.types import MapType, StringType, IntegerType
+# from pyspark.sql.functions import udf
+# from pyspark.sql.types import MapType, StringType, IntegerType
 
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
@@ -23,8 +23,8 @@ def get_most_common(x):
     except IndexError:
         return None
 
-counter_udf = udf(counter, MapType(keyType=StringType(), valueType=IntegerType()))
-most_common_udf = udf(get_most_common, StringType())
+# counter_udf = udf(counter, MapType(keyType=StringType(), valueType=IntegerType()))
+# most_common_udf = udf(get_most_common, StringType())
 
 
 def clock(fmt=DEFAULT_FMT):
