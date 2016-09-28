@@ -47,7 +47,7 @@ class DataFeeds(object):
                           )
               .withColumn('age_clean',
                           F.when((df.age < 10) | (df.age > 100), None).otherwise(df.age)
-              ))
+                          ))
         return df
 
     @staticmethod
@@ -91,7 +91,7 @@ class DataFeeds(object):
 
     @staticmethod
     def join_appnexus_feeds(sql_context, standard_feed=None, segment_feed=None, pixel_feed=None,
-                           from_date=None, to_date=None, countries=None):
+                            from_date=None, to_date=None, countries=None):
         """
         Returns an enriched version containing all the data from the AppNexus feed
 
@@ -121,7 +121,7 @@ class DataFeeds(object):
         to_drop_1 = ['datetime', 'user_id_64', 'year', 'month', 'day']
         # Change order once updated
         users_1 = ve_funcs.join(standard_feed, segment_feed, conditions_1,
-                               how='left_outer', to_drop=to_drop_1, drop_from='right')
+                                how='left_outer', to_drop=to_drop_1, drop_from='right')
 
         # Mapping Users to the Conversion Pixel feed
         conditions_2 = ((users_1.othuser_id_64 == pixel_feed.user_id_64) &
@@ -130,7 +130,7 @@ class DataFeeds(object):
         to_drop_2 = ['datetime', 'user_id_64']
         # Change order once updated
         users_2 = ve_funcs.join(users_1, pixel_feed, conditions_2,
-                               how='left_outer', to_drop=to_drop_2, drop_from='right')
+                                how='left_outer', to_drop=to_drop_2, drop_from='right')
 
         return users_2
 
@@ -153,15 +153,15 @@ class DataFeeds(object):
         feed = (feed.join(categorizer,
                           feed.customer_id == categorizer.customerid,
                           how='left_outer')
-                    .drop(categorizer.customerid))
+                .drop(categorizer.customerid))
 
         return feed
 
     @staticmethod
     def join_page_view(feed, page_view_feed=None, sql_context=None):
         page_view_feed = page_view_feed.withColumn('adnxs', page_view_feed.partner_cookies
-                                                                          .getField('adnxs')
-                                                                          .cast('int'))
+                                                   .getField('adnxs')
+                                                   .cast('int'))
         if not page_view_feed and not sql_context:
             raise ValueError('You must specify a feed or a sql_context')
 
@@ -241,7 +241,7 @@ class DataFeeds(object):
             df = df.withColumn('is_conv', ve_funcs.is_converted(df))
 
         all_users = (df.groupby('othuser_id_64')
-                       .agg(F.sum('is_conv').alias('nb_convs')))
+                     .agg(F.sum('is_conv').alias('nb_convs')))
 
         converted_users_ids = DataFeeds.get_converted_user_ids(all_users)['othuser_id_64'].tolist()
         users_df = df.filter(df.othuser_id_64.isin(converted_users_ids))
@@ -264,7 +264,7 @@ class DataFeeds(object):
         :return:
         """
         group_by = group_by or ["advertiser_id", "campaign_id", "campaign_group_id",
-                              "insertion_order_id", "othuser_id_64", "auction_id_64"]
+                                "insertion_order_id", "othuser_id_64", "auction_id_64"]
 
         auctions = (feed.groupby(group_by).agg(
             # Standard

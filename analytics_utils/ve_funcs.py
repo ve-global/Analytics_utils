@@ -3,7 +3,7 @@ from enum import Enum
 import pandas as pd
 
 from .feeds import VeCapture, AppNexus
-from .ve_utils import clock, to_pd, counter_udf, most_common_udf
+from .ve_utils import clock, to_pd#, counter_udf, most_common_udf
 from . import logs
 
 
@@ -281,10 +281,10 @@ def get_user_infos(feed):
              F.collect_list('gender').alias("genders"),
              F.collect_list('age_clean').alias("ages")
         )
-    users = (users.withColumn('operating_systems', counter_udf('operating_systems'))
-                  .withColumn('genders', counter_udf('genders'))
-                  .withColumn('ages', counter_udf('ages'))
-             )
+    # users = (users.withColumn('operating_systems', counter_udf('operating_systems'))
+    #               .withColumn('genders', counter_udf('genders'))
+    #               .withColumn('ages', counter_udf('ages'))
+    #          )
     return users
 
 
