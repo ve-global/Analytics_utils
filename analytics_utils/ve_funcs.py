@@ -262,7 +262,7 @@ def map_line_items(feed, sql_context, line_items_mapping):
     return feed
 
 
-def map_advertisers(sql_context, feed, advertisers_mapping):
+def map_advertisers(feed, sql_context, advertisers_mapping):
     """
     Add the `line_item_name` to the dataframe mapping on the `line_item_id`
     :param feed:
