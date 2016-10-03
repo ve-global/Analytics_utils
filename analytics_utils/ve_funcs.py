@@ -244,6 +244,24 @@ def map_insertion_orders(feed, sql_context, insertion_orders_mapping, insertion_
     return feed
 
 
+def map_line_items(feed, sql_context, line_items_mapping):
+    """
+    Add the `line_item_name` to the dataframe mapping on the `campaign_group_id`
+    :param feed:
+    :param sql_context:
+    :param line_items_mapping:
+    :return:
+    """
+    ids, names = zip(*line_items_mapping.items())
+    df = pd.DataFrame({'campaign_group_id': ids, 'line_item_name': names})
+    df = sql_context.createDataFrame(df)
+
+    feed = (feed.join(df, feed.campaign_group_id == df.campaign_group_id, how="left_outer")
+                .drop(df.campaign_group_id))
+
+    return feed
+
+
 def map_advertisers(sql_context, feed, advertisers_mapping):
     """
     Add the `line_item_name` to the dataframe mapping on the `line_item_id`
