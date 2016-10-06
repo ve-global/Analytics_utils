@@ -42,8 +42,6 @@ setup(
     # # Dependent packages (distributions)
     install_requires=[
         "coloredlogs",
-        "sqlalchemy",
-        "sqlalchemy_utils",
         "enum34"
     ],
 )
