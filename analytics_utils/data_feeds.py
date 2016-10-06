@@ -2,7 +2,7 @@ import pyspark.sql.functions as F
 
 from analytics_utils import logs
 from analytics_utils import ve_funcs, ve_utils
-from analytics_utils.ve_utils import clock, to_pd
+from analytics_utils.ve_utils import clock, take
 from analytics_utils.feeds import AppNexus, VeCapture
 
 
@@ -197,7 +197,7 @@ class DataFeeds(object):
 
     @staticmethod
     @clock()
-    @to_pd()
+    @take()
     def count_lines(df, by='D', data_type=AppNexus.standard.value):
         """
         Count the number of lines by: Day, Week, Month, Year
@@ -220,7 +220,7 @@ class DataFeeds(object):
 
     @staticmethod
     @clock()
-    @to_pd(limit=10000000)
+    @take(limit=10000000)
     def get_converted_user_ids(df):
         """
         Get all the converted users ids.
@@ -291,6 +291,8 @@ class DataFeeds(object):
             # Users
             F.collect_list('operating_system').alias('operating_systems'),
             F.collect_list('gender').alias("genders"),
-            F.collect_list('age_clean').alias("ages"))
+            F.collect_list('age_clean').alias("ages")),
+            # Others
+            F.collect()
         )
         return auctions
