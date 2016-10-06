@@ -205,18 +205,18 @@ def filter_pixel_converted_users(standard_feed, pixels_mapping, pixel_naming_rul
     return converted_users
 
 
-def map_pixels(feed, sql_context, pixels_mapping, pixel_naming_rule):
+def map_pixels(feed, sql_context, mapping, rule):
     """
     Add the `pixel_name` to the dataframe mapping on the `pixel_id`
     :param feed:
     :param sql_context:
-    :param pixels_mapping:
-    :param pixel_naming_rule:
+    :param mapping:
+    :param rule: rule to find the type of pixel (Converted / Landing or others...)
     :return:
     """
-    ids, names = zip(*pixels_mapping.items())
+    ids, names = zip(*mapping.items())
     df = pd.DataFrame({'pixel_id': ids, 'pixel_name': names})
-    df['is_conv_pixel'] = df['pixel_name'].apply(pixel_naming_rule)
+    df['is_conv_pixel'] = df['pixel_name'].apply(mapping)
     df = F.broadcast(sql_context.createDataFrame(df))
 
     feed = (feed.join(df, feed.pixel_id == df.pixel_id, how="left_outer")
@@ -225,18 +225,16 @@ def map_pixels(feed, sql_context, pixels_mapping, pixel_naming_rule):
     return feed
 
 
-def map_insertion_orders(feed, sql_context, insertion_orders_mapping, insertion_orders_mapping_rule):
+def map_insertion_orders(feed, sql_context, mapping):
     """
     Add the `insertion_order_name` to the dataframe mapping on the `insertion_order_id`
     :param feed:
     :param sql_context:
-    :param insertion_order_mapping:
-    :param insertion_order_mapping_rule:
+    :param mapping:
     :return:
     """
-    ids, names = zip(*insertion_orders_mapping.items())
+    ids, names = zip(*mapping.items())
     df = pd.DataFrame({'insertion_order_id': ids, 'insertion_order_name': names})
-    df['insertion_order_type'] = df['insertion_order_name'].apply(insertion_orders_mapping_rule)
     df = F.broadcast(sql_context.createDataFrame(df))
 
     feed = (feed.join(df, feed.insertion_order_id == df.insertion_order_id, how="left_outer")
@@ -245,16 +243,18 @@ def map_insertion_orders(feed, sql_context, insertion_orders_mapping, insertion_
     return feed
 
 
-def map_line_items(feed, sql_context, line_items_mapping):
+def map_line_items(feed, sql_context, mapping, rule):
     """
     Add the `line_item_name` to the dataframe mapping on the `campaign_group_id`
     :param feed:
     :param sql_context:
     :param line_items_mapping:
+    :param rule: rule to find the type of line item (retargeting/prospecting or more...)
     :return:
     """
-    ids, names = zip(*line_items_mapping.items())
+    ids, names = zip(*mapping.items())
     df = pd.DataFrame({'campaign_group_id': ids, 'line_item_name': names})
+    df['line_item_type'] = df['line_item_name'].apply(rule)
     df = F.broadcast(sql_context.createDataFrame(df))
 
     feed = (feed.join(df, feed.campaign_group_id == df.campaign_group_id, how="left_outer")
@@ -263,16 +263,16 @@ def map_line_items(feed, sql_context, line_items_mapping):
     return feed
 
 
-def map_advertisers(feed, sql_context, advertisers_mapping):
+def map_advertisers(feed, sql_context, mapping):
     """
     Add the `line_item_name` to the dataframe mapping on the `line_item_id`
     :param feed:
     :param sql_context:
     :param feed:
-    :param advertisers_mapping:
+    :param mapping:
     :return:
     """
-    ids, names = zip(*advertisers_mapping.items())
+    ids, names = zip(*mapping.items())
     df = pd.DataFrame({'advertiser_id': ids, 'advertiser_name': names})
     df = F.broadcast(sql_context.createDataFrame(df))
 
