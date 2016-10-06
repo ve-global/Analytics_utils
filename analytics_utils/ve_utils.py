@@ -4,9 +4,6 @@ from collections import Counter
 # from pyspark.sql.functions import udf
 # from pyspark.sql.types import MapType, StringType, IntegerType
 
-from sqlalchemy import create_engine
-from sqlalchemy_utils import database_exists, create_database
-
 from analytics_utils.logs import logger
 
 DEFAULT_FMT = '[{name}] {elapsed:0.8f} min'
@@ -85,21 +82,3 @@ def take(limit=COLLECT_LIMIT):
         return limit_size
 
     return decorate
-
-
-def connect_postgres(user, password, host, port, db):
-    """
-    Connect to a postgresql db. Creates it if it does not exist.
-
-    :param user:
-    :param password:
-    :param host:
-    :param port:
-    :param db:
-    :return:
-    """
-    engine = create_engine("postgresql://{user}:{password}@{host}:{port}/{db}".format(
-                            user=user, password=password, host=host, port=port, db=db))
-    if not database_exists(engine.url):
-        create_database(engine.url)
-    return engine
