@@ -217,7 +217,7 @@ def map_pixels(feed, sql_context, pixels_mapping, pixel_naming_rule):
     ids, names = zip(*pixels_mapping.items())
     df = pd.DataFrame({'pixel_id': ids, 'pixel_name': names})
     df['is_conv_pixel'] = df['pixel_name'].apply(pixel_naming_rule)
-    df = sql_context.createDataFrame(df)
+    df = F.broadcast(sql_context.createDataFrame(df))
 
     feed = (feed.join(df, feed.pixel_id == df.pixel_id, how="left_outer")
                 .drop(df.pixel_id))
@@ -237,7 +237,7 @@ def map_insertion_orders(feed, sql_context, insertion_orders_mapping, insertion_
     ids, names = zip(*insertion_orders_mapping.items())
     df = pd.DataFrame({'insertion_order_id': ids, 'insertion_order_name': names})
     df['insertion_order_type'] = df['insertion_order_name'].apply(insertion_orders_mapping_rule)
-    df = sql_context.createDataFrame(df)
+    df = F.broadcast(sql_context.createDataFrame(df))
 
     feed = (feed.join(df, feed.insertion_order_id == df.insertion_order_id, how="left_outer")
                 .drop(df.insertion_order_id))
@@ -255,7 +255,7 @@ def map_line_items(feed, sql_context, line_items_mapping):
     """
     ids, names = zip(*line_items_mapping.items())
     df = pd.DataFrame({'campaign_group_id': ids, 'line_item_name': names})
-    df = sql_context.createDataFrame(df)
+    df = F.broadcast(sql_context.createDataFrame(df))
 
     feed = (feed.join(df, feed.campaign_group_id == df.campaign_group_id, how="left_outer")
                 .drop(df.campaign_group_id))
@@ -274,7 +274,7 @@ def map_advertisers(feed, sql_context, advertisers_mapping):
     """
     ids, names = zip(*advertisers_mapping.items())
     df = pd.DataFrame({'advertiser_id': ids, 'advertiser_name': names})
-    df = sql_context.createDataFrame(df)
+    df = F.broadcast(sql_context.createDataFrame(df))
 
     feed = (feed.join(df, feed.advertiser_id == df.advertiser_id, how="left_outer")
             .drop(df.advertiser_id))
