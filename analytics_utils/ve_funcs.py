@@ -216,7 +216,7 @@ def map_pixels(feed, sql_context, mapping, rule):
     """
     ids, names = zip(*mapping.items())
     df = pd.DataFrame({'pixel_id': ids, 'pixel_name': names})
-    df['is_conv_pixel'] = df['pixel_name'].apply(mapping)
+    df['is_conv_pixel'] = df['pixel_name'].apply(rule)
     df = F.broadcast(sql_context.createDataFrame(df))
 
     feed = (feed.join(df, feed.pixel_id == df.pixel_id, how="left_outer")
