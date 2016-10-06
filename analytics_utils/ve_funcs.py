@@ -3,7 +3,7 @@ from enum import Enum
 import pandas as pd
 
 from .feeds import VeCapture, AppNexus
-from .ve_utils import clock, to_pd#, counter_udf, most_common_udf
+from .ve_utils import clock, take
 from . import logs
 
 
@@ -156,7 +156,7 @@ mapping_rules = {
 
 
 @clock()
-@to_pd()
+@take()
 def get_pixel_converted_users(standard_feed, converted_pixel_ids):
     users_that_converted = (standard_feed
                             .filter(standard_feed.pixel_id.isin(converted_pixel_ids))
@@ -194,7 +194,8 @@ def filter_pixel_converted_users(standard_feed, pixels_mapping, pixel_naming_rul
     logger.info("Converted pixels: %d" % len(converted_pixels))
 
     users_that_converted = get_pixel_converted_users(standard_feed,
-                                                     converted_pixels)['othuser_id_64'].tolist()
+                                                     converted_pixels)
+    users_that_converted = [x.othuser_id_64 for x in users_that_converted]
 
     logger.info("Users that converted: %d" % len(users_that_converted))
 

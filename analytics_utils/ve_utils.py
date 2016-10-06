@@ -59,10 +59,31 @@ def to_pd(limit=COLLECT_LIMIT):
         def limit_size(*args, **kwargs):
             _result = func(*args, **kwargs).limit(limit).toPandas()
             if _result.shape[0] == limit:
-                logger.warning('[{name}] the standard dataframe may be larger than the limit ({limit})'.format(
+                logger.warning('[{name}] the output is the same size than the limit ({limit})'.format(
                                 name=func.__name__, limit=limit))
             return _result
         return limit_size
+    return decorate
+
+
+def take(limit=COLLECT_LIMIT):
+    """
+       Execute a take in a secure way by limiting the size of the output
+       :param limit: limit size to return
+       :return: a pandas Dataframe
+       """
+
+    def decorate(func):
+        @functools.wraps(func)
+        def limit_size(*args, **kwargs):
+            _result = func(*args, **kwargs).take(limit)
+            if _result.shape[0] == limit:
+                logger.warning('[{name}] the output is the same size than the limit ({limit})'.format(
+                    name=func.__name__, limit=limit))
+            return _result
+
+        return limit_size
+
     return decorate
 
 
