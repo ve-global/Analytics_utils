@@ -74,7 +74,7 @@ def take(limit=COLLECT_LIMIT):
         @functools.wraps(func)
         def limit_size(*args, **kwargs):
             _result = func(*args, **kwargs).take(limit)
-            if _result.shape[0] == limit:
+            if len(_result) == limit:
                 logger.warning('[{name}] the output is the same size than the limit ({limit})'.format(
                     name=func.__name__, limit=limit))
             return _result
