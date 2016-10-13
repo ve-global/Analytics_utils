@@ -28,3 +28,53 @@ def add_pyspark_path(spark_home):
     else:
         py4j_src_zip = sorted(py4j_src_zip)[::-1]
         sys.path.append(py4j_src_zip[0])
+
+
+def init_spark_py3(notebook_name, spark_home, archive=None):
+    archive = archive or "/mnt/home/brayere/pyspark3.tar.gz#pyspark3"
+    # spark submit
+    os.environ['PYSPARK_PYTHON'] = "./pyspark3/pyspark3/bin/python"
+    os.environ['PYSPARK_SUBMIT_ARGS'] = \
+        '--verbose ' \
+        '--jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar ' \
+        '--master yarn ' \
+        '--deploy-mode client ' \
+        '--archives "{archive}" ' \
+        '--conf spark.executorEnv.PYTHONHASHSEED=0 ' \
+        '--conf spark.shuffle.service.enabled=true ' \
+        '--conf spark.dynamicAllocation.enabled=true ' \
+        '--conf spark.sql.parquet.compression.codec=snappy ' \
+        'pyspark-shell'.format(archive=archive)
+
+    # '--driver-cores 2 --driver-memory 8g ' \
+    # '--executor-cores 2 --executor-memory 6g ' \
+    #    '--conf spark.dynamicAllocation.maxExecutors={max_executors} ' \
+
+    # spark context
+    sc = SparkContext(appName=notebook_name, sparkHome=spark_home)
+    sc.setLogLevel('ERROR')
+
+    # sql context
+    sql_context = HiveContext(sparkContext=sc)
+    return sc, sql_context
+
+
+def init_spark_py2(notebook_name, spark_home):
+    # spark submit
+    os.environ['PYSPARK_SUBMIT_ARGS'] = \
+        '--verbose ' \
+        '--jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar ' \
+        '--master yarn ' \
+        '--deploy-mode client ' \
+        '--conf spark.shuffle.service.enabled=true ' \
+        '--conf spark.dynamicAllocation.enabled=true ' \
+        '--conf spark.sql.parquet.compression.codec=snappy ' \
+        'pyspark-shell'
+
+    # spark context
+    sc = SparkContext(appName=notebook_name, sparkHome=spark_home)
+    sc.setLogLevel('WARN')
+
+    # sql context
+    sql_context = HiveContext(sparkContext=sc)
+    return sc, sql_context

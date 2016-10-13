@@ -1,6 +1,7 @@
 import functools
 import time
 from collections import Counter
+import pandas as pd
 # from pyspark.sql.functions import udf
 # from pyspark.sql.types import MapType, StringType, IntegerType
 
@@ -54,7 +55,7 @@ def to_pd(limit=COLLECT_LIMIT):
     def decorate(func):
         @functools.wraps(func)
         def limit_size(*args, **kwargs):
-            _result = func(*args, **kwargs).limit(limit).toPandas()
+            _result = pd.DataFrame(data=[x.asDict() for x in func(*args, **kwargs).take(limit)])
             if _result.shape[0] == limit:
                 logger.warning('[{name}] the output is the same size than the limit ({limit})'.format(
                                 name=func.__name__, limit=limit))
