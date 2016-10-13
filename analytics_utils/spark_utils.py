@@ -3,8 +3,10 @@ Utils function.
 """
 import sys
 import os
-
 from glob import glob
+
+from pyspark import SparkContext
+from pyspark.sql import HiveContext
 
 
 def add_pyspark_path_if_needed(spark_home):
