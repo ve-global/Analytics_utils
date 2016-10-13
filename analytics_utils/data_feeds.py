@@ -2,7 +2,7 @@ import pyspark.sql.functions as F
 
 from analytics_utils import logs
 from analytics_utils import ve_funcs, ve_utils
-from analytics_utils.ve_utils import clock, take
+from analytics_utils.ve_utils import clock, take, to_pd
 from analytics_utils.feeds import AppNexus, VeCapture
 
 
@@ -197,7 +197,7 @@ class DataFeeds(object):
 
     @staticmethod
     @clock()
-    @take()
+    @to_pd()
     def count_lines(df, by='D', data_type=AppNexus.standard.value):
         """
         Count the number of lines by: Day, Week, Month, Year
