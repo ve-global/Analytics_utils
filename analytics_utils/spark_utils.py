@@ -5,9 +5,6 @@ import sys
 import os
 from glob import glob
 
-from pyspark import SparkContext
-from pyspark.sql import HiveContext
-
 
 def add_pyspark_path_if_needed(spark_home):
     """Add PySpark to the library path based on the value of SPARK_HOME if
@@ -33,6 +30,9 @@ def add_pyspark_path(spark_home):
 
 
 def init_spark_py3(notebook_name, spark_home, archive=None):
+    from pyspark import SparkContext
+    from pyspark.sql import HiveContext
+
     archive = archive or "/mnt/home/brayere/pyspark3.tar.gz#pyspark3"
     # spark submit
     os.environ['PYSPARK_PYTHON'] = "./pyspark3/pyspark3/bin/python"
@@ -62,6 +62,9 @@ def init_spark_py3(notebook_name, spark_home, archive=None):
 
 
 def init_spark_py2(notebook_name, spark_home):
+    from pyspark import SparkContext
+    from pyspark.sql import HiveContext
+
     # spark submit
     os.environ['PYSPARK_SUBMIT_ARGS'] = \
         '--verbose ' \
