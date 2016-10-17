@@ -57,7 +57,7 @@ def get_date(by='D', data_type=AppNexus.standard.value):
     :param data_type:
     :return:
     """
-    if data_type in (x.value for x in VeCapture):
+    if data_type in {x.value for x in VeCapture}:
         year, month, day = "i_year", "i_month", "i_day"
     else:
         year, month, day = "year", "month", "day"

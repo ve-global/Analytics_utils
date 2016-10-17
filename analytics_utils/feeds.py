@@ -5,8 +5,13 @@ class AppNexus(Enum):
     standard = "Standard"
     segment = "Segment"
     pixel = "ConversionPixel"
-    meta = "Meta"
-
+    advertiser_meta = "advertiser"
+    campaign_meta = "campaign"
+    device_meta = "device"
+    insertion_order_meta = "insertion_order"
+    line_item_meta = "line_item"
+    pixel_meta = "pixel"
+    publisher_meta = "publisher"
 
 class VeCapture(Enum):
     category_1d = "CategoryView_1d"

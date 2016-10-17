@@ -32,14 +32,20 @@ class DataFeeds(object):
     }
 
     _json_paths = {
-        AppNexus.meta: '%s/Meta/raw' % url_lld,
-        Events.browser: url_events.format(event_type=Events.browser),
-        Events.email: url_events.format(event_type=Events.email),
-        Events.apps: url_events.format(event_type=Events.apps)
+        Events.browser: url_events.format(event_type=Events.browser.value),
+        Events.email: url_events.format(event_type=Events.email.value),
+        Events.apps: url_events.format(event_type=Events.apps.value),
+        AppNexus.advertiser_meta: '%s/Meta/raw/advertiser' % url_lld,
+        AppNexus.campaign_meta: '%s/Meta/raw/campaign' % url_lld,
+        AppNexus.device_meta: '%s/Meta/raw/device' % url_lld,
+        AppNexus.insertion_order_meta: '%s/Meta/raw/insertion_order' % url_lld,
+        AppNexus.line_item_meta: '%s/Meta/raw/line_item' % url_lld,
+        AppNexus.pixel_meta: '%s/Meta/raw/pixel' % url_lld,
+        AppNexus.publisher_meta: '%s/Meta/raw/publisher' % url_lld
     }
 
     @staticmethod
-    def add_columns(df, data_type=AppNexus.standard.value):
+    def enrich_appnexus_columns(df, data_type=AppNexus.standard.value):
         """
         Add useful columns to the dataframe:
          - date
@@ -91,11 +97,14 @@ class DataFeeds(object):
         return data
 
     @staticmethod
-    def get_feed_json(sql_context, data_type):
+    def get_feed_json(sql_context, data_type, from_date=None, to_date=None):
         try:
             data = sql_context.read.json(DataFeeds._json_paths[data_type])
         except KeyError:
             raise KeyError('Data type "%s" not implemented for json data' % data_type)
+
+        if from_date or to_date:
+            data = data.filter(ve_funcs.filter_date(from_date, to_date, data_type.value))
 
         return data
 
