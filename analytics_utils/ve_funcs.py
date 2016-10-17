@@ -2,7 +2,7 @@ import pyspark.sql.functions as F
 from enum import Enum
 import pandas as pd
 
-from .feeds import VeCapture, AppNexus
+from .feeds import VeCapture, AppNexus, Events
 from .ve_utils import clock, take
 from . import logs
 
@@ -57,7 +57,8 @@ def get_date(by='D', data_type=AppNexus.standard.value):
     :param data_type:
     :return:
     """
-    if data_type in {x.value for x in VeCapture}:
+
+    if data_type not in {x.value for x in AppNexus}:
         year, month, day = "i_year", "i_month", "i_day"
     else:
         year, month, day = "year", "month", "day"
