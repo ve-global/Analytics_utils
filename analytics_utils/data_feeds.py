@@ -3,7 +3,7 @@ import pyspark.sql.functions as F
 from analytics_utils import logs
 from analytics_utils import ve_funcs, ve_utils
 from analytics_utils.ve_utils import clock, take, to_pd
-from analytics_utils.feeds import AppNexus, VeCapture
+from analytics_utils.feeds import AppNexus, VeCapture, Events
 
 
 class DataFeeds(object):
@@ -12,16 +12,31 @@ class DataFeeds(object):
     """
     url_ve = "wasb://derived@du2storvehdp1dn.blob.core.windows.net"
     url_lld = "wasb://appnexus@du2storvehdp1dn.blob.core.windows.net"
+    url_events = "wasb://{event_type}@du2storvehdp1dn.blob.core.windows.net/raw/v1"
 
-    standard_df_raw = '%s/Standard/raw_parquet' % url_lld
-    segment_df_raw = '%s/Segment/raw_parquet' % url_lld
-    pixel_df_raw = '%s/ConversionPixel/raw_parquet' % url_lld
+    _parquet_paths = {
+        # Appnexus
+        AppNexus.standard: '%s/Standard/raw_parquet' % url_lld,
+        AppNexus.segment: '%s/Segment/raw_parquet' % url_lld,
+        AppNexus.pixel: '%s/ConversionPixel/raw_parquet' % url_lld,
+        # VeCatpure
+        VeCapture.category_1d: "%s/CategoryView/data/v1/1d/ve/" % url_ve,
+        VeCapture.category_7d: "%s/CategoryView/data/v1/7d/ve/" % url_ve,
+        VeCapture.category_30d: "%s/CategoryView/data/v1/30d/ve/" % url_ve,
+        VeCapture.page_view: "%s/PageView/data/v1/" % url_ve,
+        VeCapture.categorizer: "%s/categorizer/raw_parquet/" % url_ve,
+        VeCapture.cookie_sync: "%s/raw_parquet/CookieSyncMessage/v1" % url_ve,
+        VeCapture.new_data: "%s/raw_parquet/NewDataMessage/v1" % url_ve,
+        VeCapture.update_abandon_state: "%s/raw_parquet/UpdateAbandonStateMessage/v1" % url_ve,
+        VeCapture.update_data: "%s/raw_parquet/UpdateDataMessage/v1" % url_ve
+    }
 
-    ve_categ_1d = "%s/CategoryView/data/v1/1d/ve/" % url_ve
-    ve_categ_7d = "%s/CategoryView/data/v1/7d/ve/" % url_ve
-    ve_categ_30d = "%s/CategoryView/data/v1/30d/ve/" % url_ve
-    ve_page_view_raw = "%s/PageView/data/v1/" % url_ve
-    ve_categorizer = "%s/categorizer/raw_parquet/" % url_ve
+    _json_paths = {
+        AppNexus.meta: '%s/Meta/raw' % url_lld,
+        Events.browser: url_events.format(event_type=Events.browser),
+        Events.email: url_events.format(event_type=Events.email),
+        Events.apps: url_events.format(event_type=Events.apps)
+    }
 
     @staticmethod
     def add_columns(df, data_type=AppNexus.standard.value):
@@ -56,24 +71,10 @@ class DataFeeds(object):
         """ Date format can either be a datetime or a string of format '%Y-%m-%d'
         Warning: for VeData, the time filter may need to be also based on datetime.
         """
-        if data_type == AppNexus.standard:
-            data = sql_context.read.parquet(DataFeeds.standard_df_raw)
-        elif data_type == AppNexus.segment:
-            data = sql_context.read.parquet(DataFeeds.segment_df_raw)
-        elif data_type == AppNexus.pixel:
-            data = sql_context.read.parquet(DataFeeds.pixel_df_raw)
-        elif data_type == VeCapture.category_1d:
-            data = sql_context.read.parquet(DataFeeds.ve_categ_1d)
-        elif data_type == VeCapture.category_7d:
-            data = sql_context.read.parquet(DataFeeds.ve_categ_7d)
-        elif data_type == VeCapture.category_30d:
-            data = sql_context.read.parquet(DataFeeds.ve_categ_30d)
-        elif data_type == VeCapture.page_view:
-            data = sql_context.read.parquet(DataFeeds.ve_page_view_raw)
-        elif data_type == VeCapture.categorizer:
-            data = sql_context.read.parquet(DataFeeds.ve_categorizer)
-        else:
-            raise ValueError('Data type "%s" not implemented' % data_type)
+        try:
+            data = sql_context.read.parquet(DataFeeds._parquet_paths[data_type])
+        except KeyError:
+            raise KeyError('Data type "%s" not implemented for parquet data' % data_type)
 
         if from_date or to_date:
             data = data.filter(ve_funcs.filter_date(from_date, to_date, data_type.value))
@@ -86,6 +87,15 @@ class DataFeeds(object):
                 data = data.filter(data.geo_info.getField('country_code').isin(countries))
             else:
                 raise NotImplementedError('Countries filter not implemented for this type of data')
+
+        return data
+
+    @staticmethod
+    def get_feed_json(sql_context, data_type):
+        try:
+            data = sql_context.read.json(DataFeeds._json_paths[data_type])
+        except KeyError:
+            raise KeyError('Data type "%s" not implemented for json data' % data_type)
 
         return data
 
