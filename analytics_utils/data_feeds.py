@@ -117,7 +117,8 @@ class DataFeeds(object):
         return data
 
     @staticmethod
-    def get_feed_json(sql_context, data_type, from_date=None, to_date=None):
+    def get_feed_json(sql_context, data_type, from_date=None,
+                      to_date=None):
         try:
             data = sql_context.read.json(DataFeeds._json_paths[data_type])
         except KeyError:
