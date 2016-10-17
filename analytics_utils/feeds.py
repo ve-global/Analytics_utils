@@ -13,6 +13,7 @@ class AppNexus(Enum):
     pixel_meta = "pixel"
     publisher_meta = "publisher"
 
+
 class VeCapture(Enum):
     category_1d = "CategoryView_1d"
     category_7d = "CategoryView_7d"

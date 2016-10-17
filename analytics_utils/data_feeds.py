@@ -10,38 +10,58 @@ class DataFeeds(object):
     """
     Reminder: !hdfs dfs -ls "wasb://derived@du2storvehdp1dn.blob.core.windows.net/PageView/"
     """
-    url_ve = "wasb://derived@du2storvehdp1dn.blob.core.windows.net"
-    url_lld = "wasb://appnexus@du2storvehdp1dn.blob.core.windows.net"
-    url_events = "wasb://{event_type}@du2storvehdp1dn.blob.core.windows.net/raw/v1"
+    url_blob = "wasb://{container}@du2storvehdp1dn.blob.core.windows.net"
 
     _parquet_paths = {
         # Appnexus
-        AppNexus.standard: '%s/Standard/raw_parquet' % url_lld,
-        AppNexus.segment: '%s/Segment/raw_parquet' % url_lld,
-        AppNexus.pixel: '%s/ConversionPixel/raw_parquet' % url_lld,
-        # VeCatpure
-        VeCapture.category_1d: "%s/CategoryView/data/v1/1d/ve/" % url_ve,
-        VeCapture.category_7d: "%s/CategoryView/data/v1/7d/ve/" % url_ve,
-        VeCapture.category_30d: "%s/CategoryView/data/v1/30d/ve/" % url_ve,
-        VeCapture.page_view: "%s/PageView/data/v1/" % url_ve,
-        VeCapture.categorizer: "%s/categorizer/raw_parquet/" % url_ve,
-        VeCapture.cookie_sync: "%s/raw_parquet/CookieSyncMessage/v1" % url_ve,
-        VeCapture.new_data: "%s/raw_parquet/NewDataMessage/v1" % url_ve,
-        VeCapture.update_abandon_state: "%s/raw_parquet/UpdateAbandonStateMessage/v1" % url_ve,
-        VeCapture.update_data: "%s/raw_parquet/UpdateDataMessage/v1" % url_ve
+        AppNexus.standard: "{}/{}".format(url_blob.format(container='appnexus'),
+                                          'Standard/raw_parquet'),
+        AppNexus.segment: "{}/{}".format(url_blob.format(container='appnexus'),
+                                         'Segment/raw_parquet'),
+        AppNexus.pixel: "{}/{}".format(url_blob.format(container='appnexus'),
+                                       'ConversionPixel/raw_parquet'),
+        # VeCapture
+        VeCapture.category_1d: "{}/{}".format(url_blob.format(container='derived'),
+                                              'CategoryView/data/v1/1d/ve'),
+        VeCapture.category_7d: "{}/{}".format(url_blob.format(container='derived'),
+                                              'CategoryView/data/v1/7d/ve'),
+        VeCapture.category_30d: "{}/{}".format(url_blob.format(container='derived'),
+                                               'CategoryView/data/v1/30d/ve'),
+        VeCapture.page_view: "{}/{}".format(url_blob.format(container='derived'),
+                                            'PageView/data/v1'),
+        VeCapture.categorizer: "{}/{}".format(url_blob.format(container='derived'),
+                                              'categorizer/raw_parquet/'),
+        VeCapture.cookie_sync: "{}/{}".format(url_blob.format(container='vecapture'),
+                                              'raw_parquet/CookieSyncMessage/v1'),
+        VeCapture.new_data: "{}/{}".format(url_blob.format(container='vecapture'),
+                                           'raw_parquet/NewDataMessage/v1'),
+        VeCapture.update_abandon_state: "{}/{}".format(url_blob.format(container='vecapture'),
+                                                       'raw_parquet/UpdateAbandonStateMessage/v1'),
+        VeCapture.update_data: "{}/{}".format(url_blob.format(container='vecapture'),
+                                              'raw_parquet/UpdateDataMessage/v1'),
     }
 
     _json_paths = {
-        Events.browser: url_events.format(event_type=Events.browser.value),
-        Events.email: url_events.format(event_type=Events.email.value),
-        Events.apps: url_events.format(event_type=Events.apps.value),
-        AppNexus.advertiser_meta: '%s/Meta/raw/advertiser' % url_lld,
-        AppNexus.campaign_meta: '%s/Meta/raw/campaign' % url_lld,
-        AppNexus.device_meta: '%s/Meta/raw/device' % url_lld,
-        AppNexus.insertion_order_meta: '%s/Meta/raw/insertion_order' % url_lld,
-        AppNexus.line_item_meta: '%s/Meta/raw/line_item' % url_lld,
-        AppNexus.pixel_meta: '%s/Meta/raw/pixel' % url_lld,
-        AppNexus.publisher_meta: '%s/Meta/raw/publisher' % url_lld
+        Events.browser: "{}/{}".format(url_blob.format(container=Events.browser.value),
+                                       'raw/v1'), #i_year
+        Events.email: "{}/{}".format(url_blob.format(container=Events.browser.value),
+                                     'raw/v1'), #i_year
+        Events.apps: "{}/{}".format(url_blob.format(container=Events.browser.value),
+                                    'raw/v1'), #i_year
+        AppNexus.advertiser_meta: "{}/{}".format(url_blob.format(container='appnexus'),
+                                                 'Meta/raw/advertiser'), #year
+        AppNexus.campaign_meta: "{}/{}".format(url_blob.format(container='appnexus'),
+                                               'Meta/raw/campaign'),#year
+        AppNexus.device_meta: "{}/{}".format(url_blob.format(container='appnexus'),
+                                             'Meta/raw/device'),#year
+        AppNexus.insertion_order_meta: "{}/{}".format(url_blob.format(container='appnexus'),
+                                                      'Meta/raw/insertion_order'),#year
+        AppNexus.line_item_meta: "{}/{}".format(url_blob.format(container='appnexus'),
+                                                'Meta/raw/line_item'),#year
+        AppNexus.pixel_meta: "{}/{}".format(url_blob.format(container='appnexus'),
+                                            'Meta/raw/pixel'),#year
+        AppNexus.publisher_meta: "{}/{}".format(url_blob.format(container='appnexus'),
+                                                'Meta/raw/publisher')#year
     }
 
     @staticmethod
