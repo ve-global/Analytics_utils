@@ -12,7 +12,7 @@ class DataFeeds(object):
     """
     url_blob = "wasb://{container}@du2storvehdp1dn.blob.core.windows.net"
 
-    _parquet_paths = {
+    parquet_paths = {
         # Appnexus
         AppNexus.standard: "{}/{}".format(url_blob.format(container='appnexus'),
                                           'Standard/raw_parquet'),
@@ -40,8 +40,7 @@ class DataFeeds(object):
         VeCapture.update_data: "{}/{}".format(url_blob.format(container='vecapture'),
                                               'raw_parquet/UpdateDataMessage/v1'),
     }
-
-    _json_paths = {
+    json_paths = {
         Events.browser: "{}/{}".format(url_blob.format(container=Events.browser.value),
                                        'raw/v1'), #i_year
         Events.email: "{}/{}".format(url_blob.format(container=Events.browser.value),
@@ -98,7 +97,7 @@ class DataFeeds(object):
         Warning: for VeData, the time filter may need to be also based on datetime.
         """
         try:
-            data = sql_context.read.parquet(DataFeeds._parquet_paths[data_type])
+            data = sql_context.read.parquet(DataFeeds.parquet_paths[data_type])
         except KeyError:
             raise KeyError('Data type "%s" not implemented for parquet data' % data_type)
 
@@ -120,7 +119,7 @@ class DataFeeds(object):
     def get_feed_json(sql_context, data_type, from_date=None,
                       to_date=None):
         try:
-            data = sql_context.read.json(DataFeeds._json_paths[data_type])
+            data = sql_context.read.json(DataFeeds.json_paths[data_type])
         except KeyError:
             raise KeyError('Data type "%s" not implemented for json data' % data_type)
 
@@ -128,6 +127,20 @@ class DataFeeds(object):
             data = data.filter(ve_funcs.filter_date(from_date, to_date, data_type.value))
 
         return data
+
+    @staticmethod
+    def get_meta(sql_context, meta_type, year, month, day):
+        path = "{}/year={}/month={:02d}/day={:02d}/json".format(
+            DataFeeds.json_paths[meta_type], year, month, day)
+        try:
+            data = sql_context.read.json(path)
+        # Change that exception for a py4j one
+        except Exception:
+            raise KeyError('No meta of type {} for this date: {}/{}/{}'.format(
+                meta_type.value, year, month, day))
+
+        return data
+
 
     @staticmethod
     def join_appnexus_feeds(sql_context, standard_feed=None, segment_feed=None, pixel_feed=None,
