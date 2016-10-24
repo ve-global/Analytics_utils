@@ -37,18 +37,20 @@ def init_spark_py3(notebook_name, spark_home, archive=None):
 
     env_name = archive.split('#')[-1]
     # spark submit
-    os.environ['PYSPARK_PYTHON'] = "./{env_name}/{env_name}/bin/python".format(env_name=env_name)
+    env_path = "./{env_name}/{env_name}/bin/python".format(env_name=env_name)
+    os.environ['PYSPARK_PYTHON'] = env_path
     os.environ['PYSPARK_SUBMIT_ARGS'] = \
         '--verbose ' \
         '--jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar ' \
         '--master yarn ' \
         '--deploy-mode client ' \
         '--archives "{archive}" ' \
+        '--conf spark.yarn.appMasterEnv.PYSPARK_PYTHON={env_path} ' \
         '--conf spark.executorEnv.PYTHONHASHSEED=0 ' \
         '--conf spark.shuffle.service.enabled=true ' \
         '--conf spark.dynamicAllocation.enabled=true ' \
         '--conf spark.sql.parquet.compression.codec=snappy ' \
-        'pyspark-shell'.format(archive=archive)
+        'pyspark-shell'.format(archive=archive, env_path=env_path)
 
     # '--driver-cores 2 --driver-memory 8g ' \
     # '--executor-cores 2 --executor-memory 6g ' \
