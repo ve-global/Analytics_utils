@@ -33,9 +33,11 @@ def init_spark_py3(notebook_name, spark_home, archive=None):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
 
-    archive = archive or "/mnt/home/brayere/pyspark3.tar.gz#pyspark3"
+    archive = archive or "/mnt/home/brayere/miniconda2/envs/pyspark3.zip#pyspark3"
+
+    env_name = archive.split('#')[-1]
     # spark submit
-    os.environ['PYSPARK_PYTHON'] = "./pyspark3/pyspark3/bin/python"
+    os.environ['PYSPARK_PYTHON'] = "./{env_name}/{env_name}/bin/python".format(env_name=env_name)
     os.environ['PYSPARK_SUBMIT_ARGS'] = \
         '--verbose ' \
         '--jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar ' \
