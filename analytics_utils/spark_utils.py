@@ -29,7 +29,7 @@ def add_pyspark_path(spark_home):
         sys.path.append(py4j_src_zip[0])
 
 
-def init_spark_py3(notebook_name, spark_home, archive=None):
+def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
 
@@ -45,12 +45,14 @@ def init_spark_py3(notebook_name, spark_home, archive=None):
         '--master yarn ' \
         '--deploy-mode client ' \
         '--archives "{archive}" ' \
+        '--conf  spark.ui.port={ui_port} ' \
         '--conf spark.yarn.appMasterEnv.PYSPARK_PYTHON={env_path} ' \
         '--conf spark.executorEnv.PYTHONHASHSEED=0 ' \
         '--conf spark.shuffle.service.enabled=true ' \
         '--conf spark.dynamicAllocation.enabled=true ' \
         '--conf spark.sql.parquet.compression.codec=snappy ' \
-        'pyspark-shell'.format(archive=archive, env_path=env_path)
+        'pyspark-shell'.format(archive=archive, env_path=env_path,
+                               ui_port=ui_port)
 
     # '--driver-cores 2 --driver-memory 8g ' \
     # '--executor-cores 2 --executor-memory 6g ' \
