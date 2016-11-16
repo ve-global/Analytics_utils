@@ -65,7 +65,7 @@ def init_spark_py3(notebook_name, spark_home, archive=None):
     return sc, sql_context
 
 
-def init_spark_py2(notebook_name, spark_home):
+def init_spark_py2(notebook_name, spark_home, ui_port=4040):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
 
@@ -75,10 +75,11 @@ def init_spark_py2(notebook_name, spark_home):
         '--jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar ' \
         '--master yarn ' \
         '--deploy-mode client ' \
+        '--conf  spark.ui.port={ui_port} ' \
         '--conf spark.shuffle.service.enabled=true ' \
         '--conf spark.dynamicAllocation.enabled=true ' \
         '--conf spark.sql.parquet.compression.codec=snappy ' \
-        'pyspark-shell'
+        'pyspark-shell'.format(ui_port=ui_port)
 
     # spark context
     sc = SparkContext(appName=notebook_name, sparkHome=spark_home)
