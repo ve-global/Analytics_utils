@@ -46,6 +46,7 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040):
         '--deploy-mode client ' \
         '--archives "{archive}" ' \
         '--conf  spark.ui.port={ui_port} ' \
+        '--conf spark.port.maxRetries=100' \
         '--conf spark.yarn.appMasterEnv.PYSPARK_PYTHON={env_path} ' \
         '--conf spark.executorEnv.PYTHONHASHSEED=0 ' \
         '--conf spark.shuffle.service.enabled=true ' \
@@ -78,6 +79,7 @@ def init_spark_py2(notebook_name, spark_home, ui_port=4040):
         '--master yarn ' \
         '--deploy-mode client ' \
         '--conf  spark.ui.port={ui_port} ' \
+        '--conf spark.port.maxRetries=100' \
         '--conf spark.shuffle.service.enabled=true ' \
         '--conf spark.dynamicAllocation.enabled=true ' \
         '--conf spark.sql.parquet.compression.codec=snappy ' \
