@@ -45,8 +45,7 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040):
         '--master yarn ' \
         '--deploy-mode client ' \
         '--archives "{archive}" ' \
-        '--conf  spark.ui.port={ui_port} ' \
-        '--conf spark.port.maxRetries=100' \
+        '--conf spark.ui.port={ui_port} ' \
         '--conf spark.yarn.appMasterEnv.PYSPARK_PYTHON={env_path} ' \
         '--conf spark.executorEnv.PYTHONHASHSEED=0 ' \
         '--conf spark.shuffle.service.enabled=true ' \
@@ -78,12 +77,13 @@ def init_spark_py2(notebook_name, spark_home, ui_port=4040):
         '--jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar ' \
         '--master yarn ' \
         '--deploy-mode client ' \
-        '--conf  spark.ui.port={ui_port} ' \
-        '--conf spark.port.maxRetries=100' \
+        '--conf spark.ui.port={ui_port} ' \
         '--conf spark.shuffle.service.enabled=true ' \
         '--conf spark.dynamicAllocation.enabled=true ' \
         '--conf spark.sql.parquet.compression.codec=snappy ' \
         'pyspark-shell'.format(ui_port=ui_port)
+
+        #'--conf spark.port.maxRetries=100' \
 
     # spark context
     sc = SparkContext(appName=notebook_name, sparkHome=spark_home)
