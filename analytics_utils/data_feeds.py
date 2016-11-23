@@ -43,9 +43,9 @@ class DataFeeds(object):
     json_paths = {
         Events.browser: "{}/{}".format(url_blob.format(container=Events.browser.value),
                                        'raw/v1'), #i_year
-        Events.email: "{}/{}".format(url_blob.format(container=Events.browser.value),
+        Events.email: "{}/{}".format(url_blob.format(container=Events.email.value),
                                      'raw/v1'), #i_year
-        Events.apps: "{}/{}".format(url_blob.format(container=Events.browser.value),
+        Events.apps: "{}/{}".format(url_blob.format(container=Events.apps.value),
                                     'raw/v1'), #i_year
         AppNexus.advertiser_meta: "{}/{}".format(url_blob.format(container='appnexus'),
                                                  'Meta/raw/advertiser'), #year
