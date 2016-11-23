@@ -108,7 +108,7 @@ class DataFeeds(object):
             countries = [x.upper() for x in countries]
             if isinstance(data_type, AppNexus):
                 data = data.filter(data.geo_country.isin(countries))
-            elif isinstance(data_type, VeCapture) and not isinstance(data_type, VeCapture.categorizer):
+            elif isinstance(data_type, VeCapture) and data_type != VeCapture.categorizer:
                 data = data.filter(data.geo_info.getField('country_code').isin(countries))
             else:
                 raise NotImplementedError('Countries filter not implemented for this type of data')
