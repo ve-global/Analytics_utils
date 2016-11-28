@@ -57,8 +57,9 @@ def get_date(by='D', data_type=AppNexus.standard.value):
     :param data_type:
     :return:
     """
+    not_i_year_data = [x.value for x in AppNexus] + [Events.transaction]
 
-    if data_type not in {x.value for x in AppNexus}:
+    if data_type not in set(not_i_year_data):
         year, month, day = "i_year", "i_month", "i_day"
     else:
         year, month, day = "year", "month", "day"

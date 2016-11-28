@@ -31,3 +31,4 @@ class Events(Enum):
     email = 'emailevent'
     browser = 'browserevent'
     apps = 'appsevent'
+    transaction = 'transaction'
