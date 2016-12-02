@@ -32,3 +32,7 @@ class Events(Enum):
     browser = 'browserevent'
     apps = 'appsevent'
     transaction = 'transaction'
+
+
+class External(Enum):
+    storm_session = 'storm_session'

@@ -3,7 +3,7 @@ import pyspark.sql.functions as F
 from analytics_utils import logs
 from analytics_utils import ve_funcs, ve_utils
 from analytics_utils.ve_utils import clock, take, to_pd
-from analytics_utils.feeds import AppNexus, VeCapture, Events
+from analytics_utils.feeds import AppNexus, VeCapture, Events, External
 
 
 class DataFeeds(object):
@@ -11,6 +11,7 @@ class DataFeeds(object):
     Reminder: !hdfs dfs -ls "wasb://derived@du2storvehdp1dn.blob.core.windows.net/PageView/"
     """
     url_blob = "wasb://{container}@du2storvehdp1dn.blob.core.windows.net"
+    url_blob_external = "wasb://{container}@du2storhdp1bs01.blob.core.windows.net"
 
     parquet_paths = {
         # Appnexus
@@ -62,6 +63,11 @@ class DataFeeds(object):
                                             'Meta/raw/pixel'),#year
         AppNexus.publisher_meta: "{}/{}".format(url_blob.format(container='appnexus'),
                                                 'Meta/raw/publisher')#year
+    }
+
+    avro_paths = {
+        External.storm_session: "{}/{}".format(url_blob_external.format(container='psvc-sessions'),
+                                               'PSVC-Sessions/raw/v1')
     }
 
     @staticmethod
@@ -121,6 +127,20 @@ class DataFeeds(object):
                       to_date=None):
         try:
             data = sql_context.read.json(DataFeeds.json_paths[data_type])
+        except KeyError:
+            raise KeyError('Data type "%s" not implemented for json data' % data_type)
+
+        if from_date or to_date:
+            data = data.filter(ve_funcs.filter_date(from_date, to_date, data_type.value))
+
+        return data
+
+    @staticmethod
+    def get_feed_avro(sql_context, data_type, from_date=None, to_date=None):
+        try:
+            data = (sql_context.read
+                               .format("com.databricks.spark.avro")
+                               .load(DataFeeds.avro_paths[data_type]))
         except KeyError:
             raise KeyError('Data type "%s" not implemented for json data' % data_type)
 
