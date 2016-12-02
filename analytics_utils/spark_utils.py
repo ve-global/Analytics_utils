@@ -5,6 +5,7 @@ import sys
 import os
 from glob import glob
 
+avro_package = "spark-avro_2.10:2.0.1"
 
 def add_pyspark_path_if_needed(spark_home):
     """Add PySpark to the library path based on the value of SPARK_HOME if
@@ -29,7 +30,7 @@ def add_pyspark_path(spark_home):
         sys.path.append(py4j_src_zip[0])
 
 
-def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040):
+def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040, with_avro=False):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
 
@@ -38,21 +39,24 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040):
     env_name = archive.split('#')[-1]
     # spark submit
     env_path = "./{env_name}/{env_name}/bin/python".format(env_name=env_name)
-    os.environ['PYSPARK_PYTHON'] = env_path
-    os.environ['PYSPARK_SUBMIT_ARGS'] = \
-        '--verbose ' \
-        '--jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar ' \
-        '--master yarn ' \
-        '--deploy-mode client ' \
-        '--archives "{archive}" ' \
-        '--conf spark.ui.port={ui_port} ' \
-        '--conf spark.yarn.appMasterEnv.PYSPARK_PYTHON={env_path} ' \
-        '--conf spark.executorEnv.PYTHONHASHSEED=0 ' \
-        '--conf spark.shuffle.service.enabled=true ' \
-        '--conf spark.dynamicAllocation.enabled=true ' \
-        '--conf spark.sql.parquet.compression.codec=snappy ' \
-        'pyspark-shell'.format(archive=archive, env_path=env_path,
-                               ui_port=ui_port)
+    args = '''
+        --verbose
+        --jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar
+        --master yarn
+        --deploy-mode client
+        --archives "{archive}"
+        --conf spark.ui.port={ui_port}
+        --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON={env_path}
+        --conf spark.executorEnv.PYTHONHASHSEED=0
+        --conf spark.shuffle.service.enabled=true
+        --conf spark.dynamicAllocation.enabled=true
+        --conf spark.sql.parquet.compression.codec=snappy
+        '''.format(archive=archive, env_path=env_path, ui_port=ui_port,
+                   avro_package=avro_package)
+    if with_avro:
+        args += '--packages com.databricks:{}\n'.format(avro_package)
+
+    os.environ['PYSPARK_SUBMIT_ARGS'] = args + 'pyspark-shell'
 
     # '--driver-cores 2 --driver-memory 8g ' \
     # '--executor-cores 2 --executor-memory 6g ' \
@@ -67,23 +71,25 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040):
     return sc, sql_context
 
 
-def init_spark_py2(notebook_name, spark_home, ui_port=4040):
+def init_spark_py2(notebook_name, spark_home, ui_port=4040,
+                   with_avro=False):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
 
-    # spark submit
-    os.environ['PYSPARK_SUBMIT_ARGS'] = \
-        '--verbose ' \
-        '--jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar ' \
-        '--master yarn ' \
-        '--deploy-mode client ' \
-        '--conf spark.ui.port={ui_port} ' \
-        '--conf spark.shuffle.service.enabled=true ' \
-        '--conf spark.dynamicAllocation.enabled=true ' \
-        '--conf spark.sql.parquet.compression.codec=snappy ' \
-        'pyspark-shell'.format(ui_port=ui_port)
+    args = '''
+        --verbose
+        --jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar
+        --master yarn
+        --deploy-mode client
+        --conf spark.ui.port={ui_port}
+        --conf spark.shuffle.service.enabled=true
+        --conf spark.dynamicAllocation.enabled=true
+        --conf spark.sql.parquet.compression.codec=snappy
+        '''.format(ui_port=ui_port, avro_package=avro_package)
+    if with_avro:
+        args += '--packages com.databricks:{}\n'.format(avro_package)
 
-        #'--conf spark.port.maxRetries=100' \
+    os.environ['PYSPARK_SUBMIT_ARGS'] = args + 'pyspark-shell'
 
     # spark context
     sc = SparkContext(appName=notebook_name, sparkHome=spark_home)

@@ -5,10 +5,10 @@ import os
 logger = logging.getLogger('analytics_utils')
 coloredlogs.install(level='DEBUG', fmt="%(asctime)s %(levelname)s %(message)s")
 
+
 if not logger.handlers:
-    logs_folder = os.path.join(os.path.dirname(__file__), './tmp')
-    if not os.path.exists(logs_folder):
-        os.makedirs(logs_folder)
+    logs_folder = os.path.join(os.path.dirname(__file__), '../tmp')
+    os.makedirs(logs_folder, exist_ok=True)
 
     file_handler = logging.FileHandler('{}/analytics_utils.log'.format(logs_folder))
     file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
