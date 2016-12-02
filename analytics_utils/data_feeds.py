@@ -2,7 +2,7 @@ import pyspark.sql.functions as F
 
 from analytics_utils import logs
 from analytics_utils import ve_funcs, ve_utils
-from analytics_utils.ve_utils import clock, take, to_pd
+from analytics_utils.ve_utils import clock, to_pd
 from analytics_utils.feeds import AppNexus, VeCapture, Events, External
 
 

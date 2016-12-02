@@ -30,7 +30,8 @@ def add_pyspark_path(spark_home):
         sys.path.append(py4j_src_zip[0])
 
 
-def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040, with_avro=False):
+def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040,
+                   with_avro=False, avro_version=None):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
 
@@ -51,10 +52,10 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040, with_a
         --conf spark.shuffle.service.enabled=true
         --conf spark.dynamicAllocation.enabled=true
         --conf spark.sql.parquet.compression.codec=snappy
-        '''.format(archive=archive, env_path=env_path, ui_port=ui_port,
-                   avro_package=avro_package)
+        '''.format(archive=archive, env_path=env_path, ui_port=ui_port)
+
     if with_avro:
-        args += '--packages com.databricks:{}\n'.format(avro_package)
+        args += '--packages com.databricks:{}\n'.format(avro_version or avro_package)
 
     os.environ['PYSPARK_SUBMIT_ARGS'] = args + 'pyspark-shell'
 
@@ -72,7 +73,7 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040, with_a
 
 
 def init_spark_py2(notebook_name, spark_home, ui_port=4040,
-                   with_avro=False):
+                   with_avro=False, avro_version=None):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
 
@@ -85,9 +86,9 @@ def init_spark_py2(notebook_name, spark_home, ui_port=4040,
         --conf spark.shuffle.service.enabled=true
         --conf spark.dynamicAllocation.enabled=true
         --conf spark.sql.parquet.compression.codec=snappy
-        '''.format(ui_port=ui_port, avro_package=avro_package)
+        '''.format(ui_port=ui_port)
     if with_avro:
-        args += '--packages com.databricks:{}\n'.format(avro_package)
+        args += '--packages com.databricks:{}\n'.format(avro_version or avro_package)
 
     os.environ['PYSPARK_SUBMIT_ARGS'] = args + 'pyspark-shell'
 
