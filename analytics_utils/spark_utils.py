@@ -31,9 +31,14 @@ def add_pyspark_path(spark_home):
 
 
 def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040,
-                   with_avro=False, avro_version=None):
+                   with_avro=False, avro_version=None, custom_jars=None):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
+
+    jars = ["/usr/hdp/current/hadoop-client/hadoop-azure.jar",
+            "/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar"]
+    if custom_jars:
+        jars += custom_jars
 
     archive = archive or "/mnt/home/brayere/miniconda2/envs/pyspark3.zip#pyspark3"
 
@@ -42,7 +47,7 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040,
     env_path = "./{env_name}/{env_name}/bin/python".format(env_name=env_name)
     args = '''
         --verbose
-        --jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar
+        --jars {jars}
         --master yarn
         --deploy-mode client
         --archives "{archive}"
@@ -52,7 +57,7 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040,
         --conf spark.shuffle.service.enabled=true
         --conf spark.dynamicAllocation.enabled=true
         --conf spark.sql.parquet.compression.codec=snappy
-        '''.format(archive=archive, env_path=env_path, ui_port=ui_port)
+        '''.format(jars=','.join(jars), archive=archive, env_path=env_path, ui_port=ui_port)
 
     if with_avro:
         args += '--packages com.databricks:{}\n'.format(avro_version or avro_package)
@@ -73,20 +78,25 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040,
 
 
 def init_spark_py2(notebook_name, spark_home, ui_port=4040,
-                   with_avro=False, avro_version=None):
+                   with_avro=False, avro_version=None, custom_jars=None):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
 
+    jars = ["/usr/hdp/current/hadoop-client/hadoop-azure.jar",
+            "/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar"]
+    if custom_jars:
+        jars += custom_jars
+
     args = '''
         --verbose
-        --jars /usr/hdp/current/hadoop-client/hadoop-azure.jar,/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar
+        --jars {jars}
         --master yarn
         --deploy-mode client
         --conf spark.ui.port={ui_port}
         --conf spark.shuffle.service.enabled=true
         --conf spark.dynamicAllocation.enabled=true
         --conf spark.sql.parquet.compression.codec=snappy
-        '''.format(ui_port=ui_port)
+        '''.format(jars=','.join(jars), ui_port=ui_port)
     if with_avro:
         args += '--packages com.databricks:{}\n'.format(avro_version or avro_package)
 
