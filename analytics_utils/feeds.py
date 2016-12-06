@@ -1,7 +1,6 @@
 from enum import Enum
 
 
-
 class AppNexus(Enum):
     standard = "Standard"
     segment = "Segment"
