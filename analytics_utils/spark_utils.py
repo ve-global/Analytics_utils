@@ -5,7 +5,9 @@ import sys
 import os
 from glob import glob
 
-avro_package = "spark-avro_2.10:2.0.1"
+avro_package = 'spark-avro_2.10:2.0.1'
+csv_package = 'com.databricks:spark-csv_2.10:1.5.0'
+
 
 def add_pyspark_path_if_needed(spark_home):
     """Add PySpark to the library path based on the value of SPARK_HOME if
@@ -31,7 +33,7 @@ def add_pyspark_path(spark_home):
 
 
 def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040,
-                   with_avro=False, avro_version=None, custom_jars=None):
+                   packages=None, custom_jars=None):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
 
@@ -59,8 +61,9 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040,
         --conf spark.sql.parquet.compression.codec=snappy
         '''.format(jars=','.join(jars), archive=archive, env_path=env_path, ui_port=ui_port)
 
-    if with_avro:
-        args += '--packages com.databricks:{}\n'.format(avro_version or avro_package)
+    packages = packages or []
+    if packages:
+        args += '--packages {}\n'.format(','.join(packages))
 
     os.environ['PYSPARK_SUBMIT_ARGS'] = args + 'pyspark-shell'
 
@@ -78,7 +81,7 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040,
 
 
 def init_spark_py2(notebook_name, spark_home, ui_port=4040,
-                   with_avro=False, avro_version=None, custom_jars=None):
+                   packages=None, custom_jars=None):
     from pyspark import SparkContext
     from pyspark.sql import HiveContext
 
@@ -97,8 +100,9 @@ def init_spark_py2(notebook_name, spark_home, ui_port=4040,
         --conf spark.dynamicAllocation.enabled=true
         --conf spark.sql.parquet.compression.codec=snappy
         '''.format(jars=','.join(jars), ui_port=ui_port)
-    if with_avro:
-        args += '--packages com.databricks:{}\n'.format(avro_version or avro_package)
+    packages = packages or []
+    if packages:
+        args += '--packages {}\n'.format(','.join(packages))
 
     os.environ['PYSPARK_SUBMIT_ARGS'] = args + 'pyspark-shell'
 
