@@ -75,7 +75,7 @@ def init_spark_py3(notebook_name, archive=None, ui_port=4040,
     return spark
 
 
-def init_spark_py2(notebook_name, spark_home, ui_port=4040,
+def init_spark_py2(notebook_name, ui_port=4040,
                    packages=None, custom_jars=None):
     from pyspark.sql import SparkSession
 
