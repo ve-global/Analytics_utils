@@ -162,7 +162,6 @@ class DataFeeds(object):
 
         return data
 
-
     @staticmethod
     def join_appnexus_feeds(sql_context, standard_feed=None, segment_feed=None, pixel_feed=None,
                             from_date=None, to_date=None, countries=None):

@@ -32,10 +32,9 @@ def add_pyspark_path(spark_home):
         sys.path.append(py4j_src_zip[0])
 
 
-def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040,
+def init_spark_py3(notebook_name, archive=None, ui_port=4040,
                    packages=None, custom_jars=None):
-    from pyspark import SparkContext
-    from pyspark.sql import HiveContext
+    from pyspark.sql import SparkSession
 
     jars = ["/usr/hdp/current/hadoop-client/hadoop-azure.jar",
             "/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar"]
@@ -67,23 +66,18 @@ def init_spark_py3(notebook_name, spark_home, archive=None, ui_port=4040,
 
     os.environ['PYSPARK_SUBMIT_ARGS'] = args + 'pyspark-shell'
 
-    # '--driver-cores 2 --driver-memory 8g ' \
-    # '--executor-cores 2 --executor-memory 6g ' \
-    #    '--conf spark.dynamicAllocation.maxExecutors={max_executors} ' \
+    spark = (SparkSession
+             .builder
+             .appName(notebook_name)
+             .getOrCreate())
+    spark.sparkContext.setLogLevel('WARN')
 
-    # spark context
-    sc = SparkContext(appName=notebook_name, sparkHome=spark_home)
-    sc.setLogLevel('ERROR')
-
-    # sql context
-    sql_context = HiveContext(sparkContext=sc)
-    return sc, sql_context
+    return spark
 
 
 def init_spark_py2(notebook_name, spark_home, ui_port=4040,
                    packages=None, custom_jars=None):
-    from pyspark import SparkContext
-    from pyspark.sql import HiveContext
+    from pyspark.sql import SparkSession
 
     jars = ["/usr/hdp/current/hadoop-client/hadoop-azure.jar",
             "/usr/hdp/current/hadoop-client/lib/azure-storage-2.2.0.jar"]
@@ -106,10 +100,10 @@ def init_spark_py2(notebook_name, spark_home, ui_port=4040,
 
     os.environ['PYSPARK_SUBMIT_ARGS'] = args + 'pyspark-shell'
 
-    # spark context
-    sc = SparkContext(appName=notebook_name, sparkHome=spark_home)
-    sc.setLogLevel('WARN')
+    spark = (SparkSession
+             .builder
+             .appName(notebook_name)
+             .getOrCreate())
+    spark.sparkContext.setLogLevel('WARN')
 
-    # sql context
-    sql_context = HiveContext(sparkContext=sc)
-    return sc, sql_context
+    return spark
