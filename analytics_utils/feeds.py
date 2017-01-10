@@ -40,3 +40,17 @@ class External(Enum):
 class Cookie(Enum):
     set_cookie = 'set_cookie'
     sync_cookie = 'sync_cookie'
+
+
+class Meta(Enum):
+    customer = 'customer'
+    category = 'category'
+    form = 'form'
+    formmapping = 'formmapping'
+    formappingid = 'formmappingproactive'
+    formmappingtype = 'formmappingtype'
+    formurl = 'formurl'
+    journey = 'journey'
+    journey_extended = 'journey_extended'
+    license = 'license'
+    salesmanager = 'salesmanager'

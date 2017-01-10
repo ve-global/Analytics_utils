@@ -2,6 +2,8 @@ from analytics_utils import ve_funcs
 from analytics_utils.feeds import AppNexus, VeCapture, Events, External, Cookie
 
 
+
+
 class DataFeeds(object):
     """
     Reminder: !hdfs dfs -ls "wasb://derived@du2storvehdp1dn.blob.core.windows.net/PageView/"
@@ -65,7 +67,6 @@ class DataFeeds(object):
                                           'raw/SetCookieMessage/v1')  # i_year,
 
     }
-
     avro_paths = {
         External.storm_session: "{}/{}".format(url_blob_external.format(container='psvc-sessions'),
                                                'PSVC-Sessions/raw/v1')
@@ -121,4 +122,16 @@ class DataFeeds(object):
         if from_date or to_date:
             data = data.filter(ve_funcs.filter_date(from_date, to_date, data_type.value))
 
+        return data
+
+    @staticmethod
+    def get_meta(sql_context, data_type, year=2017, month=1, day=10):
+        path = '{}/{}/{}/year={}/month={:02}/day={:02}'.format(
+            DataFeeds.url_blob.format(container='metadata'), '{}',
+            data_type.value, year, month, day)
+        schema = sql_context.read.csv(path.format('defs'), sep='\t', header='false')
+        data = sql_context.read.csv(path.format('data'), sep='\t', header='false')
+
+        for old_col, new_col in schema.take(1)[0].asDict().items():
+            data = data.withColumnRenamed(old_col, new_col)
         return data
