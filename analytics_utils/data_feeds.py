@@ -46,7 +46,7 @@ class DataFeeds(object):
                                      'raw/v1'), #i_year
         Events.apps: "{}/{}".format(url_blob.format(container=Events.apps.value),
                                     'raw/v1'), #i_year
-        Events.transaction: url_blob.format(container=Events.transaction.value), # year
+        Events.transaction: "{}/transaction".format(url_blob.format(container=Events.transaction.value)), # year
         AppNexus.advertiser_meta: "{}/{}".format(url_blob.format(container='appnexus'),
                                                  'Meta/raw/advertiser'), #year
         AppNexus.campaign_meta: "{}/{}".format(url_blob.format(container='appnexus'),
