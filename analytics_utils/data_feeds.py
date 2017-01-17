@@ -38,6 +38,7 @@ class DataFeeds(object):
                                                        'raw_parquet/UpdateAbandonStateMessage/v1'),
         VeCapture.update_data: "{}/{}".format(url_blob.format(container='vecapture'),
                                               'raw_parquet/UpdateDataMessage/v1'),
+        Events.transaction: "{}/parquet".format(url_blob.format(container=Events.transaction.value)),  # year
     }
     json_paths = {
         Events.browser: "{}/{}".format(url_blob.format(container=Events.browser.value),
