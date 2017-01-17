@@ -2,8 +2,6 @@ from analytics_utils import ve_funcs
 from analytics_utils.feeds import AppNexus, VeCapture, Events, External, Cookie
 
 
-
-
 class DataFeeds(object):
     """
     Reminder: !hdfs dfs -ls "wasb://derived@du2storvehdp1dn.blob.core.windows.net/PageView/"
@@ -39,6 +37,11 @@ class DataFeeds(object):
         VeCapture.update_data: "{}/{}".format(url_blob.format(container='vecapture'),
                                               'raw_parquet/UpdateDataMessage/v1'),
         Events.transaction: "{}/parquet".format(url_blob.format(container=Events.transaction.value)),  # year
+        # Events.browser: "{}/raw_parquet/v1".format(url_blob.format(container=Events.browser.value)),  # i_year
+        # Events.email: "{}/raw_parquet/v1".format(url_blob.format(container=Events.email.value)),  # i_year
+        # Events.apps: "{}/raw_parquet/v1".format(url_blob.format(container=Events.apps.value)),  # i_year
+        Cookie.set_cookie: "{}/raw_parquet/SetCookieMessage/v1".format(
+            url_blob.format(container='vecapture'))  # i_year,
     }
     json_paths = {
         Events.browser: "{}/{}".format(url_blob.format(container=Events.browser.value),
