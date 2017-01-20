@@ -41,7 +41,7 @@ class DataFeeds(object):
         Events.email: "{}/raw_parquet/v1".format(url_blob.format(container=Events.email.value)),  # i_year
         Events.apps: "{}/raw_parquet/v1".format(url_blob.format(container=Events.apps.value)),  # i_year
         Cookie.set_cookie: "{}/raw_parquet/SetCookieMessage/v1".format(
-            url_blob.format(container='vecapture'))  # i_year,
+            url_blob.format(container='vecapture')),  # i_year,
         VeCapture.journey_stats: "{}/VeCapture/Reports/journey_stats".format(
             url_blob.format(container='derived')),
         VeCapture.funnel: "{}/VeCapture/Reports/funnel".format(
