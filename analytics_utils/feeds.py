@@ -24,6 +24,8 @@ class VeCapture(Enum):
     new_data = 'NewDataMessage'
     update_abandon_state = 'UpdateAbandonStateMessage'
     update_data = 'UpdateDataMessage'
+    journey_stats = 'journey_stats'
+    funnel = 'funnel'
 
 
 class Events(Enum):
