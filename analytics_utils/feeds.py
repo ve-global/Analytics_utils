@@ -56,3 +56,12 @@ class Meta(Enum):
     journey_extended = 'journey_extended'
     license = 'license'
     salesmanager = 'salesmanager'
+
+
+class Attribution(Enum):
+    converted_sessions = 'converted_sessions'
+
+
+class CrossDevice(Enum):
+    email_blacklist = 'email_blacklist'
+    email_cookie = 'email_cookie'

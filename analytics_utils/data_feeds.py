@@ -1,5 +1,7 @@
 from analytics_utils import ve_funcs
-from analytics_utils.feeds import AppNexus, VeCapture, Events, External, Cookie
+from analytics_utils.feeds import (AppNexus, VeCapture,
+                                   Events, External, Cookie,
+                                   CrossDevice, Attribution)
 
 
 class DataFeeds(object):
@@ -46,6 +48,13 @@ class DataFeeds(object):
             url_blob.format(container='derived')),
         VeCapture.funnel: "{}/VeCapture/Reports/funnel".format(
             url_blob.format(container='derived')),
+
+        CrossDevice.email_cookie: "{}/VeCapture/EmailCookie".format(
+            url_blob.format(container='derived')),
+        CrossDevice.email_blacklist: "{}/VeCapture/EmailBlacklist".format(
+            url_blob.format(container='derived')),
+        Attribution.converted_sessions: "{}/ConvertedSession".format(
+            url_blob.format(container='attribution')),
 
     }
     json_paths = {
