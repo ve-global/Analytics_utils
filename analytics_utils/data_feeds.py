@@ -42,8 +42,12 @@ class DataFeeds(object):
         Events.browser: "{}/raw_parquet/v1".format(url_blob.format(container=Events.browser.value)),  # i_year
         Events.email: "{}/raw_parquet/v1".format(url_blob.format(container=Events.email.value)),  # i_year
         Events.apps: "{}/raw_parquet/v1".format(url_blob.format(container=Events.apps.value)),  # i_year
+
         Cookie.set_cookie: "{}/raw_parquet/SetCookieMessage/v1".format(
             url_blob.format(container='vecapture')),  # i_year,
+        Cookie.sync_cookie: "{}/raw_parquet/CookieSyncMessage/v1".format(
+            url_blob.format(container='vecapture')),  # i_year,
+
         VeCapture.journey_stats: "{}/VeCapture/Reports/journey_stats".format(
             url_blob.format(container='derived')),
         VeCapture.funnel: "{}/VeCapture/Reports/funnel".format(
