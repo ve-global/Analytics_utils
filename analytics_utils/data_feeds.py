@@ -21,11 +21,11 @@ class DataFeeds(object):
                                        'ConversionPixel/raw_parquet'),
         # VeCapture
         VeCapture.category_1d: "{}/{}".format(url_blob.format(container='derived'),
-                                              'CategoryView/data/v1/1d/ve'),
+                                              'CategoryView/data/v1/1d/ebay'),
         VeCapture.category_7d: "{}/{}".format(url_blob.format(container='derived'),
-                                              'CategoryView/data/v1/7d/ve'),
+                                              'CategoryView/data/v1/7d/ebay'),
         VeCapture.category_30d: "{}/{}".format(url_blob.format(container='derived'),
-                                               'CategoryView/data/v1/30d/ve'),
+                                               'CategoryView/data/v1/30d/ebay'),
         VeCapture.page_view: "{}/{}".format(url_blob.format(container='derived'),
                                             'PageView/data/v1'),
         VeCapture.categorizer: "{}/{}".format(url_blob.format(container='derived'),
@@ -58,9 +58,9 @@ class DataFeeds(object):
         CrossDevice.email_blacklist: "{}/VeCapture/EmailBlacklist".format(
             url_blob.format(container='derived')),
         Attribution.converted_sessions: "{}/ConvertedSession".format(
-            url_blob.format(container='attribution')),
-
+            url_blob.format(container='attribution'))
     }
+
     json_paths = {
         Events.browser: "{}/{}".format(url_blob.format(container=Events.browser.value),
                                        'raw/v1'), #i_year
